@@ -1,0 +1,17 @@
+languageCode = "en-us"
+title = "Documentation"
+baseURL = "https://b3ntly.github.io/elasticsearch"
+theme = "docdock"
+themesdir = "themes"
+builddrafts         = true
+canonifyurls        = true
+contentdir          = "content"
+layoutdir           = "layouts"
+publishdir          = "./"
+
+[outputs]
+home = ["HTML", "RSS", "JSON"]
+
+[params]
+unfoldedMenus = ["API"]
+noHomeIcon = false

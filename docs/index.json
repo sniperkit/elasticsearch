@@ -1,0 +1,148 @@
+[
+{
+	"uri": "https://b3ntly.github.io/elasticsearch/findbyid/",
+	"title": "FindById",
+	"tags": [],
+	"description": "",
+	"content": "Return a document by ID. Will return an error if the document doesn\u0026rsquo;t exist.\npackage main import ( \u0026quot;github.com/b3ntly/elasticsearch\u0026quot; \u0026quot;os\u0026quot; ) func main(){ client, err := elasticsearch.New(\u0026amp;elasticsearch.Options{}) if err != nil { os.Exit(-1) } collection := client.I(\u0026quot;test\u0026quot;).T(\u0026quot;test\u0026quot;) doc, err := collection.Insert([]byte(\u0026quot;{\\\u0026quot;message\\\u0026quot;: \\\u0026quot;hello, world\\\u0026quot;}\u0026quot;)) docs, err := collection.FindById(doc.ID) }  "
+},
+{
+	"uri": "https://b3ntly.github.io/elasticsearch/api/",
+	"title": "API",
+	"tags": [],
+	"description": "",
+	"content": "  New   Index   Type   "
+},
+{
+	"uri": "https://b3ntly.github.io/elasticsearch/architecture/",
+	"title": "Architecture",
+	"tags": [],
+	"description": "",
+	"content": "sequenceDiagram participant User participant Library User-Library: String or Byte Slice participant Elasticsearch Library-Elasticsearch: JSON POST Elasticsearch-Library: JSON Response Library-User: Document(s) or error  \noptions.go: Library configuration including default value initialization client.go: Public API rest.go: REST interface with Elasticsearch decode.go: Map Elasticsearch responses to generic Document(s) "
+},
+{
+	"uri": "https://b3ntly.github.io/elasticsearch/contribute/",
+	"title": "Contribute",
+	"tags": [],
+	"description": "",
+	"content": "Pull Requests and Feature Requests welcome!\n"
+},
+{
+	"uri": "https://b3ntly.github.io/elasticsearch/search/",
+	"title": "Index",
+	"tags": [],
+	"description": "",
+	"content": "See this link for the purpose and definition of an elasticsearch Index. When a reference to an Index is obtained, as in the below code, an Index is not actually created in elasticsearch. The default behavior for elasticsearch is to create the Index as soon as an operation is performed that references it, i.e. an Insert or Update call, thus there is no need to create it immediately.\npackage main import ( \u0026quot;github.com/b3ntly/elasticsearch\u0026quot; ) func main(){ client, err := elasticsearch.New(\u0026amp;elasticsearch.Options{}) index := client.I(\u0026quot;test\u0026quot;) }  "
+},
+{
+	"uri": "https://b3ntly.github.io/elasticsearch/roadmap/",
+	"title": "Roadmap",
+	"tags": [],
+	"description": "",
+	"content": " V0.1 - CURRENT  Basic CRUD action and search functionality Strong test harness  V0.2  Mocked elasticsearch REST interface for better testing Support for the Elasticsearch Bulk API  V0.3  Deep Query capability with a pleasant interface Production testing  Beyond  Better backwards compatibility support for the myriad of ES release versions Feature parity with https://github.com/olivere/elastic  "
+},
+{
+	"uri": "https://b3ntly.github.io/elasticsearch/type/",
+	"title": "Type",
+	"tags": [],
+	"description": "",
+	"content": "See this link for the purpose and definition of an elasticsearch Type. When a reference to a Type is obtained, as in the below code, a type is not actually created in elasticsearch. The default behavior for elasticsearch is to create the type as soon as a operation is performed that references it, i.e. an Insert or Update call, thus there is no need to create it immediately.\npackage main import ( \u0026quot;github.com/b3ntly/elasticsearch\u0026quot; ) func main(){ client, err := elasticsearch.New(\u0026amp;elasticsearch.Options{}) // type is a reserved word in golang so we use the identifier collection collection := client.I(\u0026quot;test\u0026quot;).T(\u0026quot;test\u0026quot;) }  "
+},
+{
+	"uri": "https://b3ntly.github.io/elasticsearch/find/",
+	"title": "Find",
+	"tags": [],
+	"description": "",
+	"content": "Find() implements search under the hood and exists purely to satisfy a mgo like interface.\npackage main import ( \u0026quot;github.com/b3ntly/elasticsearch\u0026quot; \u0026quot;os\u0026quot; ) func main(){ client, err := elasticsearch.New(\u0026amp;elasticsearch.Options{}) if err != nil { os.Exit(-1) } collection := client.I(\u0026quot;test\u0026quot;).T(\u0026quot;test\u0026quot;) doc, err := collection.Insert([]byte(\u0026quot;{\\\u0026quot;message\\\u0026quot;: \\\u0026quot;hello, world\\\u0026quot;}\u0026quot;)) docs, err := collection.Find(\u0026quot;hello\u0026quot;) docs, err := collection.Find(\u0026quot;message:hello, world\u0026quot;) }  "
+},
+{
+	"uri": "https://b3ntly.github.io/elasticsearch/insert/",
+	"title": "Insert",
+	"tags": [],
+	"description": "",
+	"content": "Insert a JSON object in the form of a byte slice as a new document in elasticsearch. If an _id property is specified it will be set as the _id of the document. If one is not provided the _id will be automatically generated.\nIf you do specify an _id and the _id already exists the API call will return an error.\npackage main import ( \u0026quot;github.com/b3ntly/elasticsearch\u0026quot; \u0026quot;os\u0026quot; ) func main(){ client, err := elasticsearch.New(\u0026amp;elasticsearch.Options{}) if err != nil { os.Exit(-1) } collection := client.I(\u0026quot;test\u0026quot;).T(\u0026quot;test\u0026quot;) collection.Insert([]byte(\u0026quot;{\\\u0026quot;message\\\u0026quot;: \\\u0026quot;hello, world\\\u0026quot;}\u0026quot;)) }  "
+},
+{
+	"uri": "https://b3ntly.github.io/elasticsearch/searchindex/",
+	"title": "Search",
+	"tags": [],
+	"description": "",
+	"content": "Search returns a slice of Documents representing the search results of your query. Indexes and Types both contain a search method that will search their respective domain, i.e. searching an index will search all documents in an index while searching a type will return all documents in the index that also fulfill the given type.\nCurrently search only accepts a simple querystring parameter that can be used to test for exact string matches and property matches.\npackage main import ( \u0026quot;github.com/b3ntly/elasticsearch\u0026quot; \u0026quot;os\u0026quot; ) func main(){ client, err := elasticsearch.New(\u0026amp;elasticsearch.Options{}) if err != nil { os.Exit(-1) } collection := client.I(\u0026quot;test\u0026quot;).T(\u0026quot;test\u0026quot;) doc, err := collection.Insert([]byte(\u0026quot;{\\\u0026quot;message\\\u0026quot;: \\\u0026quot;hello, world\\\u0026quot;}\u0026quot;)) docs, err := client.I(\u0026quot;test\u0026quot;).Search(\u0026quot;hello\u0026quot;) }  "
+},
+{
+	"uri": "https://b3ntly.github.io/elasticsearch/searchtype/",
+	"title": "Search",
+	"tags": [],
+	"description": "",
+	"content": "Search returns a slice of Documents representing the search results of your query. Indexes and Types both contain a search method that will search their respective domain, i.e. searching an index will search all documents in an index while searching a type will return all documents in the index that also fulfill the given type.\nCurrently search only accepts a simple querystring parameter that can be used to test for exact string matches and property matches.\npackage main import ( \u0026quot;github.com/b3ntly/elasticsearch\u0026quot; \u0026quot;os\u0026quot; ) func main(){ client, err := elasticsearch.New(\u0026amp;elasticsearch.Options{}) if err != nil { os.Exit(-1) } collection := client.I(\u0026quot;test\u0026quot;).T(\u0026quot;test\u0026quot;) doc, err := collection.Insert([]byte(\u0026quot;{\\\u0026quot;message\\\u0026quot;: \\\u0026quot;hello, world\\\u0026quot;}\u0026quot;)) docs, err := collection.Search(\u0026quot;hello\u0026quot;) }  "
+},
+{
+	"uri": "https://b3ntly.github.io/elasticsearch/deletebyid/",
+	"title": "DeleteById",
+	"tags": [],
+	"description": "",
+	"content": "Delete a document by ID.\npackage main import ( \u0026quot;github.com/b3ntly/elasticsearch\u0026quot; \u0026quot;os\u0026quot; ) func main(){ client, err := elasticsearch.New(\u0026amp;elasticsearch.Options{}) if err != nil { os.Exit(-1) } collection := client.I(\u0026quot;test\u0026quot;).T(\u0026quot;test\u0026quot;) doc, err := collection.Insert([]byte(\u0026quot;{\\\u0026quot;message\\\u0026quot;: \\\u0026quot;hello, world\\\u0026quot;}\u0026quot;)) err := collection.DeleteById(doc.ID) }  "
+},
+{
+	"uri": "https://b3ntly.github.io/elasticsearch/dependencies/",
+	"title": "Dependencies",
+	"tags": [],
+	"description": "",
+	"content": "Elasticsearch has two minimal dependencies github.com/stretchr/testify and github.com/hashicorp/go-cleanhttp which are vendored using the Glide vendoring library. Aside from that our test harness requires an actively running elasticsearch service found at localhost:9200.\nIn future versions this library will contain a fully mocked elasticsearch service that removes elasticsearch as a dependency for the test suite.\n"
+},
+{
+	"uri": "https://b3ntly.github.io/elasticsearch/drop/",
+	"title": "Drop",
+	"tags": [],
+	"description": "",
+	"content": "Drop an index and all its underlying documents.\npackage main import ( \u0026quot;github.com/b3ntly/elasticsearch\u0026quot; ) func main(){ client, err := elasticsearch.New(\u0026amp;elasticsearch.Options{}) err := client.I(\u0026quot;test\u0026quot;).Drop() }  "
+},
+{
+	"uri": "https://b3ntly.github.io/elasticsearch/new/",
+	"title": "New",
+	"tags": [],
+	"description": "",
+	"content": "Instantiate an elasticsearch client with default values like so:\npackage main import ( \u0026quot;github.com/b3ntly/elasticsearch\u0026quot; ) func main(){ client, err := elasticsearch.New(\u0026amp;elasticsearch.Options{}) }  By default the client will expect a running elasticsearch instance at localhost:9200. If your service is on a different host or port you can pass it a url directly.\npackage main import ( \u0026quot;github.com/b3ntly/elasticsearch\u0026quot; ) func main(){ client, err := elasticsearch.New(\u0026amp;elasticsearch.Options{ URL: \u0026quot;http://elasticsearch:9201\u0026quot;}) }  "
+},
+{
+	"uri": "https://b3ntly.github.io/elasticsearch/updatebyid/",
+	"title": "UpdateById",
+	"tags": [],
+	"description": "",
+	"content": "Update a document by ID. If the document does not exist it will be inserted, which is the default behavior of elasticsearch.\npackage main import ( \u0026quot;github.com/b3ntly/elasticsearch\u0026quot; \u0026quot;os\u0026quot; ) func main(){ client, err := elasticsearch.New(\u0026amp;elasticsearch.Options{}) if err != nil { os.Exit(-1) } collection := client.I(\u0026quot;test\u0026quot;).T(\u0026quot;test\u0026quot;) doc, err := collection.Insert([]byte(\u0026quot;{\\\u0026quot;message\\\u0026quot;: \\\u0026quot;hello, world\\\u0026quot;}\u0026quot;)) err = collection.UpdateById(doc.ID, []byte(\u0026quot;{\\\u0026quot;message\\\u0026quot;: \\\u0026quot;bye, world\\\u0026quot;}\u0026quot;)) }  "
+},
+{
+	"uri": "https://b3ntly.github.io/elasticsearch/jargon/",
+	"title": "Jargon",
+	"tags": [],
+	"description": "",
+	"content": " Comparisons to other DBMS  MySQL =\u0026gt; Databases =\u0026gt; Tables =\u0026gt; Columns/Rows\n MongoDB =\u0026gt; Databases =\u0026gt; Collections \u0026gt; Documents\n Elasticsearch =\u0026gt; Indices =\u0026gt; Types =\u0026gt; Documents with Properties\n  Comparisons to MGO library mgo:\nsession, err := mgo.Dial(url) c := session.DB(database).C(collection) err := c.Find(query).One(\u0026amp;result)  elasticsearch:\nclient := elasticsearch.Client(\u0026amp;elasticSearch.Options{}) collection := client.I(\u0026quot;test\u0026quot;).C(\u0026quot;test\u0026quot;) documents, err := client.Search(\u0026quot;golang\u0026quot;)  "
+},
+{
+	"uri": "https://b3ntly.github.io/elasticsearch/_header/",
+	"title": "",
+	"tags": [],
+	"description": "",
+	"content": "Documentation\n"
+},
+{
+	"uri": "https://b3ntly.github.io/elasticsearch/",
+	"title": "Home",
+	"tags": [],
+	"description": "",
+	"content": " Home  \nAbstract Elasticsearch is a distributed full-text search engine built on Lucene. This library creates a Mongo DB like interface so Elasticsearch may be used as a standalone database for small web applications.\nNote the DBMS and this library are both called \u0026lsquo;elasticsearch\u0026rsquo;.\nProvides  A transparent protocol for interacting with the Elasticsearch REST API Interfaces based on the the mgo library for Mongo DB. Solid test harness for future extensibility Roadmap for Bulk API and deep querying support  "
+},
+{
+	"uri": "https://b3ntly.github.io/elasticsearch/categories/",
+	"title": "Categories",
+	"tags": [],
+	"description": "",
+	"content": ""
+},
+{
+	"uri": "https://b3ntly.github.io/elasticsearch/tags/",
+	"title": "Tags",
+	"tags": [],
+	"description": "",
+	"content": ""
+}]
