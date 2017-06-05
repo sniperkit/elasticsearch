@@ -2,11 +2,11 @@ package elasticsearch
 
 import (
 	"bytes"
-	"fmt"
 	"net/http"
 	"io/ioutil"
 	"github.com/pkg/errors"
 	"strings"
+	"fmt"
 )
 
 // REST interface with elasticsearch
@@ -93,7 +93,7 @@ func (r *REST) UpdateDocument(index string, _type string, ID string, doc []byte)
 // Call the elasticsearch Document API
 func (r *REST) DeleteDocument(index string, _type string, ID string) error {
 	URL := r.BuildURL(index, _type, ID, "?refresh")
-	body, err := r.Request("GET", URL, nil)
+	body, err := r.Request("DELETE", URL, nil)
 
 	if err != nil {
 		return err
@@ -123,7 +123,6 @@ func (r *REST) BuildRequest(method string, url string, body []byte) (*http.Reque
 	}
 
 	req.Header.Add("Content-Type", "application/json")
-
 	return req, nil
 }
 
@@ -133,8 +132,6 @@ func (r *REST) SendRequest(req *http.Request) ([]byte, error){
 	if err != nil {
 		return nil, err
 	}
-
-	// fmt.Println(response.StatusCode)
 
 	if response.StatusCode >= 299 {
 		return nil, errors.New(fmt.Sprintf("Invalid status code during InsertDocument: %v", response.StatusCode))

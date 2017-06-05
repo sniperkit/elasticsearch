@@ -87,7 +87,7 @@ func (t *Type) UpdateById(ID string, doc []byte) error {
 
 // Delete a document by its ID. If it is not found it will return an error.
 func (t *Type) DeleteById(ID string) error {
-	return nil
+	return t.Index.Client.REST.DeleteDocument(t.Index.Name, t.Name, ID)
 }
 
 

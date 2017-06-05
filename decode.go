@@ -83,15 +83,15 @@ func SearchResponseToDocument(HTTPResponseBody []byte) ([]*Document, error){
 }
 
 func DeleteDocumentResponseToDocument(HTTPResponseBody []byte) error {
-	response := &mock.DeleteIndexResponse{}
+	response := &mock.DeleteDocumentResponse{}
 	err := json.Unmarshal(HTTPResponseBody, response)
 
 	if err != nil {
 		return err
 	}
 
-	if response.Acknowledged != true {
-		return errors.New("Delete Index was not acknowledged.")
+	if response.Found != true {
+		return errors.New("Document was not found.")
 	}
 
 	return nil
