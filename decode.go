@@ -1,6 +1,7 @@
 package elasticsearch
 
 import (
+	"github.com/b3ntly/elasticsearch/mock"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -17,7 +18,7 @@ type Document struct {
 }
 
 func IndexResponseToDocument(HTTPResponseBody []byte) (*Document, error){
-	response := &IndexResponse{}
+	response := &mock.IndexResponse{}
 	err := json.Unmarshal(HTTPResponseBody, response)
 
 	if err != nil {
@@ -32,7 +33,7 @@ func IndexResponseToDocument(HTTPResponseBody []byte) (*Document, error){
 }
 
 func DeleteIndexResponseToDocument(HTTPResponseBody []byte) error {
-	response := &DeleteIndexResponse{}
+	response := &mock.DeleteIndexResponse{}
 
 	err := json.Unmarshal(HTTPResponseBody, response)
 	if err != nil {
@@ -47,7 +48,7 @@ func DeleteIndexResponseToDocument(HTTPResponseBody []byte) error {
 }
 
 func GetDocumentResponseToDocument(HTTPResponseBody []byte) (*Document, error){
-	response := &GetDocumentResponse{}
+	response := &mock.GetDocumentResponse{}
 	err := json.Unmarshal(HTTPResponseBody, response)
 
 	if err != nil {
@@ -63,7 +64,7 @@ func GetDocumentResponseToDocument(HTTPResponseBody []byte) (*Document, error){
 
 func SearchResponseToDocument(HTTPResponseBody []byte) ([]*Document, error){
 	//fmt.Println(string(HTTPResponseBody))
-	response := &SearchResponse{}
+	response := &mock.SearchResponse{}
 	err := json.Unmarshal(HTTPResponseBody, response)
 
 	if err != nil {
@@ -82,7 +83,7 @@ func SearchResponseToDocument(HTTPResponseBody []byte) ([]*Document, error){
 }
 
 func DeleteDocumentResponseToDocument(HTTPResponseBody []byte) error {
-	response := &DeleteIndexResponse{}
+	response := &mock.DeleteIndexResponse{}
 	err := json.Unmarshal(HTTPResponseBody, response)
 
 	if err != nil {
@@ -97,7 +98,7 @@ func DeleteDocumentResponseToDocument(HTTPResponseBody []byte) error {
 }
 
 func UpdateDocumentResponseToDocument(HTTPResponseBody []byte) error {
-	response := &IndexResponse{}
+	response := &mock.IndexResponse{}
 	err := json.Unmarshal(HTTPResponseBody, response)
 
 	if err != nil {
