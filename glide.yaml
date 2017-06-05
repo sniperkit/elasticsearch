@@ -5,3 +5,7 @@ import:
   subpackages:
   - assert
 - package: github.com/hashicorp/go-cleanhttp
+- package: github.com/gorilla/mux
+  version: ^1.4.0
+- package: github.com/oklog/ulid
+  version: ^0.3.0
