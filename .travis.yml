@@ -31,12 +31,5 @@ after_success:
 before_script:
   - sleep 10
 
-addons:
-  apt:
-    sources:
-      - elasticsearch-5.x
-    packages:
-    - elasticsearch
-
 services:
   - elasticsearch
