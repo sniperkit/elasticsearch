@@ -131,7 +131,6 @@ func updateDocumentResponseToDocument(HTTPResponseBody []byte) error {
 }
 
 func bulkInsertResponseToIDs(HTTPResponseBody []byte) ([]string, error) {
-	fmt.Println(string(HTTPResponseBody))
 	response := &mock.Generic{}
 	err := json.Unmarshal(HTTPResponseBody, response)
 
@@ -140,7 +139,6 @@ func bulkInsertResponseToIDs(HTTPResponseBody []byte) ([]string, error) {
 	}
 
 	inserted := make([]string, len(response.Items))
-	fmt.Println(response)
 	for idx, item := range response.Items {
 		if item.Index.Created == false {
 			err = errors.New("Some documents were not inserted.")
