@@ -8,7 +8,7 @@ import (
 )
 
 // Reference to an elasticsearch document. To simplify deserialization between
-// the elasticsearch REST response and the struct type response of this library,
+// the elasticsearch rest response and the struct type response of this library,
 // we do not decode the document but instead leave it serialized as a *json.RawMessage.
 //
 // Elasticsearch also separates document IDs from document bodies, hence the separate struct fields.
@@ -17,23 +17,41 @@ type Document struct {
 	Body json.RawMessage
 }
 
-func IndexResponseToDocument(HTTPResponseBody []byte) (*Document, error){
-	response := &mock.IndexResponse{}
+func errorResponseToError(HTTPResponseBody []byte) error {
+	response := &mock.Generic{}
 	err := json.Unmarshal(HTTPResponseBody, response)
 
 	if err != nil {
-		return nil, err
+		return err
+	}
+
+	reason := ""
+	for _, r := range response.Error.RootCause {
+		reason += "," + r.Reason
+	}
+
+	return errors.New(reason)
+}
+
+func indexResponseToDocument(HTTPResponseBody []byte) (string, error){
+	response := &mock.Generic{}
+	err := json.Unmarshal(HTTPResponseBody, response)
+
+	if err != nil {
+		return "", err
 	}
 
 	if response.Created != true {
-		return nil, errors.New("Failed to create document.")
+		return "", errors.New("Failed to create document.")
 	}
 
-	return &Document{ ID: response.ID, Body: HTTPResponseBody }, err
+	return response.ID, err
 }
 
-func DeleteIndexResponseToDocument(HTTPResponseBody []byte) error {
-	response := &mock.DeleteIndexResponse{}
+
+
+func deleteIndexResponseToDocument(HTTPResponseBody []byte) error {
+	response := &mock.Generic{}
 
 	err := json.Unmarshal(HTTPResponseBody, response)
 	if err != nil {
@@ -47,8 +65,9 @@ func DeleteIndexResponseToDocument(HTTPResponseBody []byte) error {
 	return nil
 }
 
-func GetDocumentResponseToDocument(HTTPResponseBody []byte) (*Document, error){
-	response := &mock.GetDocumentResponse{}
+func getDocumentResponseToDocument(HTTPResponseBody []byte) (*Document, error){
+	//fmt.Println(string(HTTPResponseBody))
+	response := &mock.Generic{}
 	err := json.Unmarshal(HTTPResponseBody, response)
 
 	if err != nil {
@@ -59,12 +78,11 @@ func GetDocumentResponseToDocument(HTTPResponseBody []byte) (*Document, error){
 		return nil, errors.New(fmt.Sprintf("Failed to get document with id: %v", response.ID))
 	}
 
-	return &Document{ ID: response.ID, Body: response.Document }, err
+	return &Document{ ID: response.ID, Body: response.Source }, err
 }
 
-func SearchResponseToDocument(HTTPResponseBody []byte) ([]*Document, error){
-	//fmt.Println(string(HTTPResponseBody))
-	response := &mock.SearchResponse{}
+func searchResponseToDocument(HTTPResponseBody []byte) ([]*Document, error){
+	response := &mock.Generic{}
 	err := json.Unmarshal(HTTPResponseBody, response)
 
 	if err != nil {
@@ -82,8 +100,8 @@ func SearchResponseToDocument(HTTPResponseBody []byte) ([]*Document, error){
 	return documents, err
 }
 
-func DeleteDocumentResponseToDocument(HTTPResponseBody []byte) error {
-	response := &mock.DeleteDocumentResponse{}
+func deleteDocumentResponseToDocument(HTTPResponseBody []byte) error {
+	response := &mock.Generic{}
 	err := json.Unmarshal(HTTPResponseBody, response)
 
 	if err != nil {
@@ -97,8 +115,8 @@ func DeleteDocumentResponseToDocument(HTTPResponseBody []byte) error {
 	return nil
 }
 
-func UpdateDocumentResponseToDocument(HTTPResponseBody []byte) error {
-	response := &mock.IndexResponse{}
+func updateDocumentResponseToDocument(HTTPResponseBody []byte) error {
+	response := &mock.Generic{}
 	err := json.Unmarshal(HTTPResponseBody, response)
 
 	if err != nil {
@@ -111,4 +129,63 @@ func UpdateDocumentResponseToDocument(HTTPResponseBody []byte) error {
 
 	return nil
 }
+
+func bulkInsertResponseToIDs(HTTPResponseBody []byte) ([]string, error) {
+	response := &mock.Generic{}
+	err := json.Unmarshal(HTTPResponseBody, response)
+
+	if err != nil {
+		return nil, err
+	}
+
+	inserted := make([]string, len(response.Items))
+	for idx, item := range response.Items {
+		if item.Index.Created == false {
+			err = errors.New("Some documents were not inserted.")
+		}
+		inserted[idx] = item.Index.ID
+	}
+
+	return inserted, err
+}
+
+func bulkUpdateResponseToIDs(HTTPResponseBody []byte)([]string, error){
+	response := &mock.Generic{}
+	err := json.Unmarshal(HTTPResponseBody, response)
+
+	if err != nil {
+		return nil, err
+	}
+
+	updated := make([]string, len(response.Items))
+
+	for idx, item := range response.Items {
+		updated[idx] = item.Update.ID
+	}
+
+	return updated, err
+}
+
+func bulkDeleteResponseToIDs(HTTPResponseBody []byte)([]string, error){
+	//fmt.Println(string(HTTPResponseBody))
+	response := &mock.Generic{}
+	err := json.Unmarshal(HTTPResponseBody, response)
+
+	if err != nil {
+		return nil, err
+	}
+
+	deleted := make([]string, len(response.Items))
+
+	for idx, item := range response.Items {
+		if item.Delete.Found == false {
+			err = errors.New("Some documents were not found and thus not deleted.")
+		}
+		deleted[idx] = item.Delete.ID
+	}
+
+	return deleted, err
+}
+
+
 

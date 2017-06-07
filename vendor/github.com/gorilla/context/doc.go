@@ -7,9 +7,9 @@ Package context stores values shared during a request lifetime.
 
 Note: gorilla/context, having been born well before `context.Context` existed,
 does not play well > with the shallow copying of the request that
-[`http.Request.WithContext`](https://golang.org/pkg/net/http/#Request.WithContext)
+[`http.request.WithContext`](https://golang.org/pkg/net/http/#Request.WithContext)
 (added to net/http Go 1.7 onwards) performs. You should either use *just*
-gorilla/context, or moving forward, the new `http.Request.Context()`.
+gorilla/context, or moving forward, the new `http.request.Context()`.
 
 For example, a router can set variables extracted from the URL and later
 application handlers can access those values, or it can be used to store
@@ -34,14 +34,14 @@ Here we define a key using a custom int type to avoid name collisions:
 
 	const MyKey key = 0
 
-Then set a variable. Variables are bound to an http.Request object, so you
+Then set a variable. Variables are bound to an http.request object, so you
 need a request instance to set a value:
 
 	context.Set(r, MyKey, "bar")
 
 The application can later access the variable using the same key you provided:
 
-	func MyHandler(w http.ResponseWriter, r *http.Request) {
+	func MyHandler(w http.ResponseWriter, r *http.request) {
 		// val is "bar".
 		val := context.Get(r, foo.MyKey)
 
@@ -61,7 +61,7 @@ type:
 	const mykey key = 0
 
 	// GetMyKey returns a value for this package from the request values.
-	func GetMyKey(r *http.Request) SomeType {
+	func GetMyKey(r *http.request) SomeType {
 		if rv := context.Get(r, mykey); rv != nil {
 			return rv.(SomeType)
 		}
@@ -69,7 +69,7 @@ type:
 	}
 
 	// SetMyKey sets a value for this package in the request values.
-	func SetMyKey(r *http.Request, val SomeType) {
+	func SetMyKey(r *http.request, val SomeType) {
 		context.Set(r, mykey, val)
 	}
 

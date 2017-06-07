@@ -1,18 +1,17 @@
-package elasticsearch_test
+package elasticsearch
 
 import (
 	"testing"
 	"github.com/stretchr/testify/assert"
-	"github.com/b3ntly/elasticsearch"
 )
 
 
 // table test
 func TestREST_BuildURL(t *testing.T) {
 	asserts := assert.New(t)
-	r := &elasticsearch.REST{ BaseURL: elasticsearch.DefaultURL, HTTPClient: elasticsearch.DefaultHTTPClient }
+	r := &rest{ BaseURL: DefaultURL, HTTPClient: DefaultHTTPClient }
 	base := r.BaseURL
-	asserts.Equal(elasticsearch.DefaultURL, base)
+	asserts.Equal(DefaultURL, base)
 
 	cases := []struct{
 		inputs []string
@@ -23,7 +22,7 @@ func TestREST_BuildURL(t *testing.T) {
 	}
 
 	for _, test := range cases {
-		output := r.BuildURL(test.inputs...)
+		output := r.buildURL(test.inputs...)
 		asserts.Equal(test.expectedOutput, output)
 	}
 }
