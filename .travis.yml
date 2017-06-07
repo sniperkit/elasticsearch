@@ -21,6 +21,7 @@ before_install:
   # ES needs some time to start
   - sleep 15
   - curl http://localhost:9200
+  - go get github.com/mattn/goveralls
 
 # http://docs.travis-ci.com/user/languages/go/#Dependency-Management
 install:
@@ -45,8 +46,6 @@ addons:
       - oracle-java8-installer
       - oracle-java8-set-default
 
-before_install:
-  - go get github.com/mattn/goveralls
 
 after_success:
   - coveralls
