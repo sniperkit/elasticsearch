@@ -9,7 +9,7 @@
 
     <link rel="shortcut icon" href="https://b3ntly.github.io/elasticsearch/images/favicon.png" type="image/x-icon" />
 
-    <title>Index :: Documentation</title>
+    <title>BulkUpdate :: Documentation</title>
     <link href="https://b3ntly.github.io/elasticsearch/css/nucleus.css" rel="stylesheet">
     <link href="https://b3ntly.github.io/elasticsearch/css/font-awesome.min.css" rel="stylesheet">
     <link href="https://b3ntly.github.io/elasticsearch/css/hybrid.css" rel="stylesheet">
@@ -29,7 +29,7 @@
     
 
   </head>
-  <body class="" data-url="/search/">
+  <body class="" data-url="/bulkupdate/">
     
 <nav id="sidebar" class="">
   <div id="header-wrapper">
@@ -201,7 +201,7 @@
     
     
         <li data-nav-id="/search/" class="dd-item 
-        active 
+         
         
         "
         >
@@ -209,17 +209,11 @@
                 <span>Index</span>
                 
                     
-                        <i class="fa fa-angle-down fa-lg category-icon"></i>
+                        <i class="fa fa-angle-right fa-lg category-icon"></i>
                     
                 
                 
             </a>
-            
-                
-                
-                
-                    
-                
             
             
             
@@ -282,18 +276,24 @@
     
         <li data-nav-id="/type/" class="dd-item 
          
-        
+        parent
         "
         >
             <a href="https://b3ntly.github.io/elasticsearch/type/">
                 <span>Type</span>
                 
                     
-                        <i class="fa fa-angle-right fa-lg category-icon"></i>
+                        <i class="fa fa-angle-down fa-lg category-icon"></i>
                     
                 
                 
             </a>
+            
+                
+                
+                
+                    
+                
             
             
             
@@ -437,7 +437,7 @@
     
     
         <li data-nav-id="/bulkupdate/" class="dd-item 
-         
+        active 
         
         "
         >
@@ -446,6 +446,10 @@
                 
                 
             </a>
+            
+                
+                
+                
             
             
             
@@ -598,7 +602,7 @@
                   Documentation
                 </a>
                 
-                   / <a href='https://b3ntly.github.io/elasticsearch/api/'>API</a> / <a href='https://b3ntly.github.io/elasticsearch/search/'>Index</a>
+                   / <a href='https://b3ntly.github.io/elasticsearch/api/'>API</a> / <a href='https://b3ntly.github.io/elasticsearch/type/'>Type</a> / <a href='https://b3ntly.github.io/elasticsearch/bulkupdate/'>BulkUpdate</a>
                 
                 
             </div>
@@ -613,24 +617,35 @@
         
         <div id="body-inner">
           
-            <h1>Index</h1>
+            <h1>BulkUpdate</h1>
           
 
 
-<p>See <a href="&quot;/jargon">this link</a> for the purpose and definition of an elasticsearch Index. When a reference to an Index is
-obtained, as in the below code, an Index is not actually created in elasticsearch. The default behavior for elasticsearch
-is to create the Index as soon as an operation is performed that references it, i.e. an Insert or Update call, thus there
-is no need to create it immediately.</p>
+<p>Update document(s) by ID. If the document does not exist it will be inserted, which
+is the default behavior of elasticsearch.</p>
+
+<p>Notably the ES Bulk API is not transactionally and may only partially complete a bulk request,
+such as updating some but not all of the requested documents.</p>
 
 <pre><code class="language-go">package main 
  
 import (
     &quot;github.com/b3ntly/elasticsearch&quot;
+    &quot;os&quot;
 )
 
 func main(){
         client, err := elasticsearch.New(&amp;elasticsearch.Options{})
-        index := client.I(&quot;test&quot;)
+        
+        if err != nil {
+                os.Exit(-1)
+        }
+        
+        collection := client.I(&quot;test&quot;).T(&quot;test&quot;)
+        ID, err := collection.Insert([]byte(&quot;{\&quot;message\&quot;: \&quot;hello, world\&quot;}&quot;))
+       
+        // updates is a slice of strings indicating the recently updated documents
+        updates, err := collection.BulkUpdate([]*elasticsearch.Document{ &amp;elasticsearch.Document{ ID: ID, Body: []byte(&quot;{\&quot;message\&quot;: \&quot;bye, world\&quot;}&quot;}})
 }
 </code></pre>
 
@@ -709,9 +724,119 @@ func main(){
             
                 
                     
+                
+                
+                
+                    
+            
+            
+                
                     
                 
                 
+                
+            
+        
+                
+                    
+            
+            
+                
+                    
+                
+                
+                
+            
+        
+                
+            
+        
+                
+                    
+            
+            
+                
+                    
+                
+                
+                
+                    
+            
+            
+                
+                    
+                
+                
+                
+            
+        
+                
+                    
+            
+            
+                
+                    
+                
+                
+                
+            
+        
+                
+                    
+            
+            
+                
+                    
+                
+                
+                
+            
+        
+                
+                    
+            
+            
+                
+                    
+                
+                
+                
+            
+        
+                
+                    
+            
+            
+                
+                    
+                
+                
+                
+            
+        
+                
+                    
+            
+            
+                
+                    
+                
+                
+                
+            
+        
+                
+                    
+            
+            
+                
+                    
+                    
+                
+                
+                
+            
+        
                 
                     
             
@@ -720,116 +845,6 @@ func main(){
                     
                         
                         
-                    
-                
-                
-                
-            
-        
-                
-                    
-            
-            
-                
-                    
-                
-                
-                
-            
-        
-                
-            
-        
-                
-                    
-            
-            
-                
-                    
-                
-                
-                
-                    
-            
-            
-                
-                    
-                
-                
-                
-            
-        
-                
-                    
-            
-            
-                
-                    
-                
-                
-                
-            
-        
-                
-                    
-            
-            
-                
-                    
-                
-                
-                
-            
-        
-                
-                    
-            
-            
-                
-                    
-                
-                
-                
-            
-        
-                
-                    
-            
-            
-                
-                    
-                
-                
-                
-            
-        
-                
-                    
-            
-            
-                
-                    
-                
-                
-                
-            
-        
-                
-                    
-            
-            
-                
-                    
-                
-                
-                
-            
-        
-                
-                    
-            
-            
-                
                     
                 
                 
@@ -881,10 +896,10 @@ func main(){
 
 
         
-            <a class="nav nav-prev" href="https://b3ntly.github.io/elasticsearch/new/" title="New"> <i class="fa fa-chevron-left"></i></a>
+            <a class="nav nav-prev" href="https://b3ntly.github.io/elasticsearch/updatebyid/" title="UpdateById"> <i class="fa fa-chevron-left"></i></a>
         
         
-            <a class="nav nav-next" href="https://b3ntly.github.io/elasticsearch/searchindex/" title="Search" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+            <a class="nav nav-next" href="https://b3ntly.github.io/elasticsearch/deletebyid/" title="DeleteById" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
         
     </div>
 

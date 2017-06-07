@@ -43,6 +43,11 @@
   </url>
   
   <url>
+    <loc>https://b3ntly.github.io/elasticsearch/bulkinsert/</loc>
+    <lastmod>2017-06-02T13:30:25-07:00</lastmod>
+  </url>
+  
+  <url>
     <loc>https://b3ntly.github.io/elasticsearch/insert/</loc>
     <lastmod>2017-06-02T13:30:25-07:00</lastmod>
   </url>
@@ -55,6 +60,16 @@
   <url>
     <loc>https://b3ntly.github.io/elasticsearch/searchtype/</loc>
     <lastmod>2017-06-02T13:30:25-07:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://b3ntly.github.io/elasticsearch/bulkdelete/</loc>
+    <lastmod>2017-06-02T13:25:49-07:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://b3ntly.github.io/elasticsearch/bulkupdate/</loc>
+    <lastmod>2017-06-02T13:25:49-07:00</lastmod>
   </url>
   
   <url>

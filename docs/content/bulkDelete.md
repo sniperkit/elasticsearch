@@ -1,16 +1,18 @@
 +++
 date = "2017-06-02T13:25:49-07:00"
 draft = false
-title = "DeleteById"
+title = "BulkDelete"
 description = ""
 
 [menu.main]
 parent = "Type"
-identifier = "Delete"
-weight = 50
+identifier = "BulkDelete"
+weight = 51
 +++
 
-Delete a document by ID.
+Bulk delete a document by their ID(s).
+
+The ES Bulk API is not transactional and may only partially complete a series of deletions in a bulk request.
 
 ```go
 package main 
@@ -29,6 +31,8 @@ func main(){
         
         collection := client.I("test").T("test")
         ID, err := collection.Insert([]byte("{\"message\": \"hello, world\"}"))
-        err := collection.DeleteById(ID)
+        
+        // deleted is a slice of strings representing the deleted documents
+        deleted, err := collection.BulkDelete(ID)
 }
 ```

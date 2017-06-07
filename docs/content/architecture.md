@@ -32,3 +32,10 @@ sequenceDiagram
 {{% alert theme="warning" %}}[rest.go](https://github.com/b3ntly/elasticsearch/blob/master/rest.go): REST interface with Elasticsearch{{% /alert %}}
 
 {{% alert theme="warning" %}}[decode.go](https://github.com/b3ntly/elasticsearch/blob/master/decode.go): Map Elasticsearch responses to generic Document(s){{% /alert %}}
+
+## Package Mock
+
+Elasticsearch also provides a package called mock that contains a server implementation in Golang which replicates
+the basic behavior of ES. Elasticsearch uses mock internally for added testing, though it should be noted
+that it only very basically replicates ES (i.e. it is not sharded and represents data only in a nested map structure
+protected by a RWMutex).

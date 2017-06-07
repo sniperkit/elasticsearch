@@ -330,6 +330,28 @@
     
     
     
+        <li data-nav-id="/bulkinsert/" class="dd-item 
+         
+        
+        "
+        >
+            <a href="https://b3ntly.github.io/elasticsearch/bulkinsert/">
+                <span>BulkInsert</span>
+                
+                
+            </a>
+            
+            
+            
+        </li>
+    
+
+                
+                    
+    
+    
+    
+    
         <li data-nav-id="/searchtype/" class="dd-item 
          
         
@@ -418,6 +440,28 @@
     
     
     
+        <li data-nav-id="/bulkupdate/" class="dd-item 
+         
+        
+        "
+        >
+            <a href="https://b3ntly.github.io/elasticsearch/bulkupdate/">
+                <span>BulkUpdate</span>
+                
+                
+            </a>
+            
+            
+            
+        </li>
+    
+
+                
+                    
+    
+    
+    
+    
         <li data-nav-id="/deletebyid/" class="dd-item 
          
         
@@ -425,6 +469,28 @@
         >
             <a href="https://b3ntly.github.io/elasticsearch/deletebyid/">
                 <span>DeleteById</span>
+                
+                
+            </a>
+            
+            
+            
+        </li>
+    
+
+                
+                    
+    
+    
+    
+    
+        <li data-nav-id="/bulkdelete/" class="dd-item 
+         
+        
+        "
+        >
+            <a href="https://b3ntly.github.io/elasticsearch/bulkdelete/">
+                <span>BulkDelete</span>
                 
                 
             </a>
@@ -578,7 +644,9 @@ func main(){
         }
         
         collection := client.I(&quot;test&quot;).T(&quot;test&quot;)
-        collection.Insert([]byte(&quot;{\&quot;message\&quot;: \&quot;hello, world\&quot;}&quot;))
+        
+        // ID is the newly inserted ID
+        ID, err := collection.Insert([]byte(&quot;{\&quot;message\&quot;: \&quot;hello, world\&quot;}&quot;))
 }
 </code></pre>
 
@@ -763,6 +831,39 @@ func main(){
             
         
                 
+                    
+            
+            
+                
+                    
+                
+                
+                
+            
+        
+                
+                    
+            
+            
+                
+                    
+                
+                
+                
+            
+        
+                
+                    
+            
+            
+                
+                    
+                
+                
+                
+            
+        
+                
             
         
                 
@@ -799,7 +900,7 @@ func main(){
             <a class="nav nav-prev" href="https://b3ntly.github.io/elasticsearch/type/" title="Type"> <i class="fa fa-chevron-left"></i></a>
         
         
-            <a class="nav nav-next" href="https://b3ntly.github.io/elasticsearch/searchtype/" title="Search" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+            <a class="nav nav-next" href="https://b3ntly.github.io/elasticsearch/bulkinsert/" title="BulkInsert" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
         
     </div>
 

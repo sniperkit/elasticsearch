@@ -11,12 +11,12 @@ weight = 50
 
 +++
 
-## V0.1 - CURRENT
+## V0.1 
 
 * Basic CRUD action and search functionality
 * Strong test harness
 
-## V0.2
+## V0.2 - CURRENT
 
 * Mocked elasticsearch REST interface for better testing
 * Support for the Elasticsearch Bulk API

@@ -320,6 +320,28 @@
     
     
     
+        <li data-nav-id="/bulkinsert/" class="dd-item 
+         
+        
+        "
+        >
+            <a href="https://b3ntly.github.io/elasticsearch/bulkinsert/">
+                <span>BulkInsert</span>
+                
+                
+            </a>
+            
+            
+            
+        </li>
+    
+
+                
+                    
+    
+    
+    
+    
         <li data-nav-id="/searchtype/" class="dd-item 
          
         
@@ -408,6 +430,28 @@
     
     
     
+        <li data-nav-id="/bulkupdate/" class="dd-item 
+         
+        
+        "
+        >
+            <a href="https://b3ntly.github.io/elasticsearch/bulkupdate/">
+                <span>BulkUpdate</span>
+                
+                
+            </a>
+            
+            
+            
+        </li>
+    
+
+                
+                    
+    
+    
+    
+    
         <li data-nav-id="/deletebyid/" class="dd-item 
          
         
@@ -415,6 +459,28 @@
         >
             <a href="https://b3ntly.github.io/elasticsearch/deletebyid/">
                 <span>DeleteById</span>
+                
+                
+            </a>
+            
+            
+            
+        </li>
+    
+
+                
+                    
+    
+    
+    
+    
+        <li data-nav-id="/bulkdelete/" class="dd-item 
+         
+        
+        "
+        >
+            <a href="https://b3ntly.github.io/elasticsearch/bulkdelete/">
+                <span>BulkDelete</span>
                 
                 
             </a>
@@ -532,7 +598,14 @@
             </div>
             <div class="progress">
     <div class="wrapper">
-
+<nav id="TableOfContents">
+<ul>
+<li>
+<ul>
+<li><a href="#package-mock">Package Mock</a></li>
+</ul></li>
+</ul>
+</nav>
     </div>
 </div>
 
@@ -543,6 +616,8 @@
           
             <h1>Architecture</h1>
           
+
+
 
 
 <div class="mermaid" align="center" >
@@ -559,17 +634,17 @@ sequenceDiagram
 <p><br />
 <br /></p>
 
-<p><div class="alert 
+<div class="alert 
 alert-warning"
  
 role="alert"><a href="https://github.com/b3ntly/elasticsearch/blob/master/options.go">options.go</a>: Library configuration including default value initialization</div>
-</p>
 
-<p><div class="alert 
+
+<div class="alert 
 alert-warning"
  
 role="alert"><a href="https://github.com/b3ntly/elasticsearch/blob/master/client.go">client.go</a>: Public API</div>
-</p>
+
 
 <div class="alert 
 alert-warning"
@@ -577,11 +652,18 @@ alert-warning"
 role="alert"><a href="https://github.com/b3ntly/elasticsearch/blob/master/rest.go">rest.go</a>: REST interface with Elasticsearch</div>
 
 
-<p><div class="alert 
+<div class="alert 
 alert-warning"
  
 role="alert"><a href="https://github.com/b3ntly/elasticsearch/blob/master/decode.go">decode.go</a>: Map Elasticsearch responses to generic Document(s)</div>
-</p>
+
+
+<h2 id="package-mock">Package Mock</h2>
+
+<p>Elasticsearch also provides a package called mock that contains a server implementation in Golang which replicates
+the basic behavior of ES. Elasticsearch uses mock internally for added testing, though it should be noted
+that it only very basically replicates ES (i.e. it is not sharded and represents data only in a nested map structure
+protected by a RWMutex).</p>
 
 
 <footer class=" footline" >
@@ -697,6 +779,39 @@ role="alert"><a href="https://github.com/b3ntly/elasticsearch/blob/master/decode
                     
                 
                 
+                
+                    
+            
+            
+                
+                    
+                
+                
+                
+            
+        
+                
+                    
+            
+            
+                
+                    
+                
+                
+                
+            
+        
+                
+                    
+            
+            
+                
+                    
+                
+                
+                
+            
+        
                 
                     
             

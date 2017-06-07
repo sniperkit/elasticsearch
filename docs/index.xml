@@ -37,7 +37,7 @@ package main import ( &amp;quot;github.com/b3ntly/elasticsearch&amp;quot; &amp;q
       
       <guid>https://b3ntly.github.io/elasticsearch/architecture/</guid>
       <description>sequenceDiagram participant User participant Library User-Library: String or Byte Slice participant Elasticsearch Library-Elasticsearch: JSON POST Elasticsearch-Library: JSON Response Library-User: Document(s) or error  
-options.go: Library configuration including default value initialization client.go: Public API rest.go: REST interface with Elasticsearch decode.go: Map Elasticsearch responses to generic Document(s) </description>
+options.go: Library configuration including default value initialization client.go: Public API rest.go: REST interface with Elasticsearch decode.go: Map Elasticsearch responses to generic Document(s) Package Mock Elasticsearch also provides a package called mock that contains a server implementation in Golang which replicates the basic behavior of ES. Elasticsearch uses mock internally for added testing, though it should be noted that it only very basically replicates ES (i.</description>
     </item>
     
     <item>
@@ -65,7 +65,7 @@ package main import ( &amp;quot;github.</description>
       <pubDate>Fri, 02 Jun 2017 13:33:55 -0700</pubDate>
       
       <guid>https://b3ntly.github.io/elasticsearch/roadmap/</guid>
-      <description> V0.1 - CURRENT  Basic CRUD action and search functionality Strong test harness  V0.2  Mocked elasticsearch REST interface for better testing Support for the Elasticsearch Bulk API  V0.3  Deep Query capability with a pleasant interface Production testing  Beyond  Better backwards compatibility support for the myriad of ES release versions Feature parity with https://github.com/olivere/elastic  </description>
+      <description> V0.1  Basic CRUD action and search functionality Strong test harness  V0.2 - CURRENT  Mocked elasticsearch REST interface for better testing Support for the Elasticsearch Bulk API  V0.3  Deep Query capability with a pleasant interface Production testing  Beyond  Better backwards compatibility support for the myriad of ES release versions Feature parity with https://github.com/olivere/elastic  </description>
     </item>
     
     <item>
@@ -86,6 +86,17 @@ package main import ( &amp;quot;github.</description>
       <guid>https://b3ntly.github.io/elasticsearch/find/</guid>
       <description>Find() implements search under the hood and exists purely to satisfy a mgo like interface.
 package main import ( &amp;quot;github.com/b3ntly/elasticsearch&amp;quot; &amp;quot;os&amp;quot; ) func main(){ client, err := elasticsearch.New(&amp;amp;elasticsearch.Options{}) if err != nil { os.Exit(-1) } collection := client.I(&amp;quot;test&amp;quot;).T(&amp;quot;test&amp;quot;) doc, err := collection.Insert([]byte(&amp;quot;{\&amp;quot;message\&amp;quot;: \&amp;quot;hello, world\&amp;quot;}&amp;quot;)) docs, err := collection.Find(&amp;quot;hello&amp;quot;) docs, err := collection.Find(&amp;quot;message:hello, world&amp;quot;) }  </description>
+    </item>
+    
+    <item>
+      <title>BulkInsert</title>
+      <link>https://b3ntly.github.io/elasticsearch/bulkinsert/</link>
+      <pubDate>Fri, 02 Jun 2017 13:30:25 -0700</pubDate>
+      
+      <guid>https://b3ntly.github.io/elasticsearch/bulkinsert/</guid>
+      <description>Insert multiple JSON objects in the form of byte slice(s). If an _id property is specified it will be set as the _id of the document. If one is not provided the _id will be automatically generated.
+If you do specify an _id and the _id already exists the API call will return an error.
+Notably the ES Bulk API is not transactional and therefore may only partially complete bulk request.</description>
     </item>
     
     <item>
@@ -120,13 +131,35 @@ Currently search only accepts a simple querystring parameter that can be used to
     </item>
     
     <item>
+      <title>BulkDelete</title>
+      <link>https://b3ntly.github.io/elasticsearch/bulkdelete/</link>
+      <pubDate>Fri, 02 Jun 2017 13:25:49 -0700</pubDate>
+      
+      <guid>https://b3ntly.github.io/elasticsearch/bulkdelete/</guid>
+      <description>Bulk delete a document by their ID(s).
+The ES Bulk API is not transactional and may only partially complete a series of deletions in a bulk request.
+package main import ( &amp;quot;github.com/b3ntly/elasticsearch&amp;quot; &amp;quot;os&amp;quot; ) func main(){ client, err := elasticsearch.New(&amp;amp;elasticsearch.Options{}) if err != nil { os.Exit(-1) } collection := client.I(&amp;quot;test&amp;quot;).T(&amp;quot;test&amp;quot;) ID, err := collection.Insert([]byte(&amp;quot;{\&amp;quot;message\&amp;quot;: \&amp;quot;hello, world\&amp;quot;}&amp;quot;)) // deleted is a slice of strings representing the deleted documents deleted, err := collection.</description>
+    </item>
+    
+    <item>
+      <title>BulkUpdate</title>
+      <link>https://b3ntly.github.io/elasticsearch/bulkupdate/</link>
+      <pubDate>Fri, 02 Jun 2017 13:25:49 -0700</pubDate>
+      
+      <guid>https://b3ntly.github.io/elasticsearch/bulkupdate/</guid>
+      <description>Update document(s) by ID. If the document does not exist it will be inserted, which is the default behavior of elasticsearch.
+Notably the ES Bulk API is not transactionally and may only partially complete a bulk request, such as updating some but not all of the requested documents.
+package main import ( &amp;quot;github.com/b3ntly/elasticsearch&amp;quot; &amp;quot;os&amp;quot; ) func main(){ client, err := elasticsearch.New(&amp;amp;elasticsearch.Options{}) if err != nil { os.Exit(-1) } collection := client.</description>
+    </item>
+    
+    <item>
       <title>DeleteById</title>
       <link>https://b3ntly.github.io/elasticsearch/deletebyid/</link>
       <pubDate>Fri, 02 Jun 2017 13:25:49 -0700</pubDate>
       
       <guid>https://b3ntly.github.io/elasticsearch/deletebyid/</guid>
       <description>Delete a document by ID.
-package main import ( &amp;quot;github.com/b3ntly/elasticsearch&amp;quot; &amp;quot;os&amp;quot; ) func main(){ client, err := elasticsearch.New(&amp;amp;elasticsearch.Options{}) if err != nil { os.Exit(-1) } collection := client.I(&amp;quot;test&amp;quot;).T(&amp;quot;test&amp;quot;) doc, err := collection.Insert([]byte(&amp;quot;{\&amp;quot;message\&amp;quot;: \&amp;quot;hello, world\&amp;quot;}&amp;quot;)) err := collection.DeleteById(doc.ID) }  </description>
+package main import ( &amp;quot;github.com/b3ntly/elasticsearch&amp;quot; &amp;quot;os&amp;quot; ) func main(){ client, err := elasticsearch.New(&amp;amp;elasticsearch.Options{}) if err != nil { os.Exit(-1) } collection := client.I(&amp;quot;test&amp;quot;).T(&amp;quot;test&amp;quot;) ID, err := collection.Insert([]byte(&amp;quot;{\&amp;quot;message\&amp;quot;: \&amp;quot;hello, world\&amp;quot;}&amp;quot;)) err := collection.DeleteById(ID) }  </description>
     </item>
     
     <item>

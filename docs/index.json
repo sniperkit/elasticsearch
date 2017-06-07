@@ -18,7 +18,7 @@
 	"title": "Architecture",
 	"tags": [],
 	"description": "",
-	"content": "sequenceDiagram participant User participant Library User-Library: String or Byte Slice participant Elasticsearch Library-Elasticsearch: JSON POST Elasticsearch-Library: JSON Response Library-User: Document(s) or error  \noptions.go: Library configuration including default value initialization client.go: Public API rest.go: REST interface with Elasticsearch decode.go: Map Elasticsearch responses to generic Document(s) "
+	"content": " sequenceDiagram participant User participant Library User-Library: String or Byte Slice participant Elasticsearch Library-Elasticsearch: JSON POST Elasticsearch-Library: JSON Response Library-User: Document(s) or error  \noptions.go: Library configuration including default value initialization client.go: Public API rest.go: REST interface with Elasticsearch decode.go: Map Elasticsearch responses to generic Document(s) Package Mock Elasticsearch also provides a package called mock that contains a server implementation in Golang which replicates the basic behavior of ES. Elasticsearch uses mock internally for added testing, though it should be noted that it only very basically replicates ES (i.e. it is not sharded and represents data only in a nested map structure protected by a RWMutex).\n"
 },
 {
 	"uri": "https://b3ntly.github.io/elasticsearch/contribute/",
@@ -39,7 +39,7 @@
 	"title": "Roadmap",
 	"tags": [],
 	"description": "",
-	"content": " V0.1 - CURRENT  Basic CRUD action and search functionality Strong test harness  V0.2  Mocked elasticsearch REST interface for better testing Support for the Elasticsearch Bulk API  V0.3  Deep Query capability with a pleasant interface Production testing  Beyond  Better backwards compatibility support for the myriad of ES release versions Feature parity with https://github.com/olivere/elastic  "
+	"content": " V0.1  Basic CRUD action and search functionality Strong test harness  V0.2 - CURRENT  Mocked elasticsearch REST interface for better testing Support for the Elasticsearch Bulk API  V0.3  Deep Query capability with a pleasant interface Production testing  Beyond  Better backwards compatibility support for the myriad of ES release versions Feature parity with https://github.com/olivere/elastic  "
 },
 {
 	"uri": "https://b3ntly.github.io/elasticsearch/type/",
@@ -56,11 +56,18 @@
 	"content": "Find() implements search under the hood and exists purely to satisfy a mgo like interface.\npackage main import ( \u0026quot;github.com/b3ntly/elasticsearch\u0026quot; \u0026quot;os\u0026quot; ) func main(){ client, err := elasticsearch.New(\u0026amp;elasticsearch.Options{}) if err != nil { os.Exit(-1) } collection := client.I(\u0026quot;test\u0026quot;).T(\u0026quot;test\u0026quot;) doc, err := collection.Insert([]byte(\u0026quot;{\\\u0026quot;message\\\u0026quot;: \\\u0026quot;hello, world\\\u0026quot;}\u0026quot;)) docs, err := collection.Find(\u0026quot;hello\u0026quot;) docs, err := collection.Find(\u0026quot;message:hello, world\u0026quot;) }  "
 },
 {
+	"uri": "https://b3ntly.github.io/elasticsearch/bulkinsert/",
+	"title": "BulkInsert",
+	"tags": [],
+	"description": "",
+	"content": "Insert multiple JSON objects in the form of byte slice(s). If an _id property is specified it will be set as the _id of the document. If one is not provided the _id will be automatically generated.\nIf you do specify an _id and the _id already exists the API call will return an error.\nNotably the ES Bulk API is not transactional and therefore may only partially complete bulk request.\npackage main import ( \u0026quot;github.com/b3ntly/elasticsearch\u0026quot; \u0026quot;os\u0026quot; ) func main(){ client, err := elasticsearch.New(\u0026amp;elasticsearch.Options{}) if err != nil { os.Exit(-1) } collection := client.I(\u0026quot;test\u0026quot;).T(\u0026quot;test\u0026quot;) // inserted represents a slice of IDs // this call will return an error of not all documents were inserted. inserted, err := collection.BulkInsert([][]byte{[]byte(\u0026quot;{\\\u0026quot;message\\\u0026quot;: \\\u0026quot;hello, world\\\u0026quot;}\u0026quot;)}) }  "
+},
+{
 	"uri": "https://b3ntly.github.io/elasticsearch/insert/",
 	"title": "Insert",
 	"tags": [],
 	"description": "",
-	"content": "Insert a JSON object in the form of a byte slice as a new document in elasticsearch. If an _id property is specified it will be set as the _id of the document. If one is not provided the _id will be automatically generated.\nIf you do specify an _id and the _id already exists the API call will return an error.\npackage main import ( \u0026quot;github.com/b3ntly/elasticsearch\u0026quot; \u0026quot;os\u0026quot; ) func main(){ client, err := elasticsearch.New(\u0026amp;elasticsearch.Options{}) if err != nil { os.Exit(-1) } collection := client.I(\u0026quot;test\u0026quot;).T(\u0026quot;test\u0026quot;) collection.Insert([]byte(\u0026quot;{\\\u0026quot;message\\\u0026quot;: \\\u0026quot;hello, world\\\u0026quot;}\u0026quot;)) }  "
+	"content": "Insert a JSON object in the form of a byte slice as a new document in elasticsearch. If an _id property is specified it will be set as the _id of the document. If one is not provided the _id will be automatically generated.\nIf you do specify an _id and the _id already exists the API call will return an error.\npackage main import ( \u0026quot;github.com/b3ntly/elasticsearch\u0026quot; \u0026quot;os\u0026quot; ) func main(){ client, err := elasticsearch.New(\u0026amp;elasticsearch.Options{}) if err != nil { os.Exit(-1) } collection := client.I(\u0026quot;test\u0026quot;).T(\u0026quot;test\u0026quot;) // ID is the newly inserted ID ID, err := collection.Insert([]byte(\u0026quot;{\\\u0026quot;message\\\u0026quot;: \\\u0026quot;hello, world\\\u0026quot;}\u0026quot;)) }  "
 },
 {
 	"uri": "https://b3ntly.github.io/elasticsearch/searchindex/",
@@ -77,11 +84,25 @@
 	"content": "Search returns a slice of Documents representing the search results of your query. Indexes and Types both contain a search method that will search their respective domain, i.e. searching an index will search all documents in an index while searching a type will return all documents in the index that also fulfill the given type.\nCurrently search only accepts a simple querystring parameter that can be used to test for exact string matches and property matches.\npackage main import ( \u0026quot;github.com/b3ntly/elasticsearch\u0026quot; \u0026quot;os\u0026quot; ) func main(){ client, err := elasticsearch.New(\u0026amp;elasticsearch.Options{}) if err != nil { os.Exit(-1) } collection := client.I(\u0026quot;test\u0026quot;).T(\u0026quot;test\u0026quot;) doc, err := collection.Insert([]byte(\u0026quot;{\\\u0026quot;message\\\u0026quot;: \\\u0026quot;hello, world\\\u0026quot;}\u0026quot;)) docs, err := collection.Search(\u0026quot;hello\u0026quot;) }  "
 },
 {
+	"uri": "https://b3ntly.github.io/elasticsearch/bulkdelete/",
+	"title": "BulkDelete",
+	"tags": [],
+	"description": "",
+	"content": "Bulk delete a document by their ID(s).\nThe ES Bulk API is not transactional and may only partially complete a series of deletions in a bulk request.\npackage main import ( \u0026quot;github.com/b3ntly/elasticsearch\u0026quot; \u0026quot;os\u0026quot; ) func main(){ client, err := elasticsearch.New(\u0026amp;elasticsearch.Options{}) if err != nil { os.Exit(-1) } collection := client.I(\u0026quot;test\u0026quot;).T(\u0026quot;test\u0026quot;) ID, err := collection.Insert([]byte(\u0026quot;{\\\u0026quot;message\\\u0026quot;: \\\u0026quot;hello, world\\\u0026quot;}\u0026quot;)) // deleted is a slice of strings representing the deleted documents deleted, err := collection.BulkDelete(ID) }  "
+},
+{
+	"uri": "https://b3ntly.github.io/elasticsearch/bulkupdate/",
+	"title": "BulkUpdate",
+	"tags": [],
+	"description": "",
+	"content": "Update document(s) by ID. If the document does not exist it will be inserted, which is the default behavior of elasticsearch.\nNotably the ES Bulk API is not transactionally and may only partially complete a bulk request, such as updating some but not all of the requested documents.\npackage main import ( \u0026quot;github.com/b3ntly/elasticsearch\u0026quot; \u0026quot;os\u0026quot; ) func main(){ client, err := elasticsearch.New(\u0026amp;elasticsearch.Options{}) if err != nil { os.Exit(-1) } collection := client.I(\u0026quot;test\u0026quot;).T(\u0026quot;test\u0026quot;) ID, err := collection.Insert([]byte(\u0026quot;{\\\u0026quot;message\\\u0026quot;: \\\u0026quot;hello, world\\\u0026quot;}\u0026quot;)) // updates is a slice of strings indicating the recently updated documents updates, err := collection.BulkUpdate([]*elasticsearch.Document{ \u0026amp;elasticsearch.Document{ ID: ID, Body: []byte(\u0026quot;{\\\u0026quot;message\\\u0026quot;: \\\u0026quot;bye, world\\\u0026quot;}\u0026quot;}}) }  "
+},
+{
 	"uri": "https://b3ntly.github.io/elasticsearch/deletebyid/",
 	"title": "DeleteById",
 	"tags": [],
 	"description": "",
-	"content": "Delete a document by ID.\npackage main import ( \u0026quot;github.com/b3ntly/elasticsearch\u0026quot; \u0026quot;os\u0026quot; ) func main(){ client, err := elasticsearch.New(\u0026amp;elasticsearch.Options{}) if err != nil { os.Exit(-1) } collection := client.I(\u0026quot;test\u0026quot;).T(\u0026quot;test\u0026quot;) doc, err := collection.Insert([]byte(\u0026quot;{\\\u0026quot;message\\\u0026quot;: \\\u0026quot;hello, world\\\u0026quot;}\u0026quot;)) err := collection.DeleteById(doc.ID) }  "
+	"content": "Delete a document by ID.\npackage main import ( \u0026quot;github.com/b3ntly/elasticsearch\u0026quot; \u0026quot;os\u0026quot; ) func main(){ client, err := elasticsearch.New(\u0026amp;elasticsearch.Options{}) if err != nil { os.Exit(-1) } collection := client.I(\u0026quot;test\u0026quot;).T(\u0026quot;test\u0026quot;) ID, err := collection.Insert([]byte(\u0026quot;{\\\u0026quot;message\\\u0026quot;: \\\u0026quot;hello, world\\\u0026quot;}\u0026quot;)) err := collection.DeleteById(ID) }  "
 },
 {
 	"uri": "https://b3ntly.github.io/elasticsearch/dependencies/",
@@ -130,7 +151,7 @@
 	"title": "Home",
 	"tags": [],
 	"description": "",
-	"content": " Home  \nAbstract Elasticsearch is a distributed full-text search engine built on Lucene. This library creates a Mongo DB like interface so Elasticsearch may be used as a standalone database for small web applications.\nNote the DBMS and this library are both called \u0026lsquo;elasticsearch\u0026rsquo;.\nProvides  A transparent protocol for interacting with the Elasticsearch REST API Interfaces based on the the mgo library for Mongo DB. Solid test harness for future extensibility Roadmap for Bulk API and deep querying support  "
+	"content": " Home  \nAbstract Elasticsearch is a distributed full-text search engine built on Lucene. This library creates a Mongo DB like interface so Elasticsearch may be used as a standalone database for small web applications.\nNote the DBMS and this library are both called \u0026lsquo;elasticsearch\u0026rsquo;. As often as possible I will use the term \u0026lsquo;ES\u0026rsquo; to signify elasticsearch the database.\nProvides  A transparent protocol for interacting with the Elasticsearch REST API Interfaces based on the the mgo library for Mongo DB. Solid test harness for future extensibility Bulk API support elasticsearch/mock - A functioning HTTP server which replicated the base functionality of Elasticsearch Roadmap for deep querying support  "
 },
 {
 	"uri": "https://b3ntly.github.io/elasticsearch/categories/",
