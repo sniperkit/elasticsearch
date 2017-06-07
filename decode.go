@@ -131,6 +131,7 @@ func updateDocumentResponseToDocument(HTTPResponseBody []byte) error {
 }
 
 func bulkInsertResponseToIDs(HTTPResponseBody []byte) ([]string, error) {
+	fmt.Println(string(HTTPResponseBody))
 	response := &mock.Generic{}
 	err := json.Unmarshal(HTTPResponseBody, response)
 
