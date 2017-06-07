@@ -1,8 +1,27 @@
 # http://docs.travis-ci.com/user/languages/go/
 language: go
 
+
+sudo: true
+
 go:
   - 1.8
+
+
+env:
+  matrix:
+    - "ES_VERSION=5.4.1 ES_DOWNLOAD_URL=https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.4.1.deb"
+
+before_install:
+  ## ES has different download locations for each version, so we'll download them both and then just use the one we want
+  - curl $ES_DOWNLOAD_URL > elasticsearch_package.deb
+  ## Now, use the ENV to choose the version
+  - sudo dpkg -i --force-confnew elasticsearch_package.deb
+  - sudo service elasticsearch restart
+  # ES needs some time to start
+  - sleep 15
+  - curl http://localhost:9200
+  - go get github.com/mattn/goveralls
 
 # http://docs.travis-ci.com/user/languages/go/#Dependency-Management
 install:
@@ -21,21 +40,15 @@ script:
   - $HOME/gopath/bin/gover
   - $HOME/gopath/bin/goveralls -coverprofile=gover.coverprofile -service travis-ci
 
-before_install:
- - go get github.com/mattn/goveralls
+addons:
+  apt:
+    packages:
+      - oracle-java8-installer
+      - oracle-java8-set-default
+
 
 after_success:
   - coveralls
 
 before_script:
   - sleep 10
-
-addons:
-  apt:
-    sources:
-      - elasticsearch-2.x
-    packages:
-    - elasticsearch
-
-services:
-  - elasticsearch

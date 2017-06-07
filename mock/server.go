@@ -25,6 +25,7 @@ func New() *http.Server {
 	database = newStore()
 	router := mux.NewRouter().StrictSlash(true)
 
+	router.HandleFunc("/_bulk", BulkAPI).Methods("POST")
 	router.HandleFunc("/{index}", DeleteIndex).Methods("DELETE")
 	router.HandleFunc("/{index}/_search", SearchIndex).Methods("GET")
 	router.HandleFunc("/{index}/{_type}/_search", SearchType).Methods("GET")

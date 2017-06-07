@@ -4,111 +4,187 @@ import (
 	"bytes"
 	"net/http"
 	"io/ioutil"
-	"github.com/pkg/errors"
 	"strings"
 	"fmt"
 )
 
-// REST interface with elasticsearch
-type REST struct {
+// rest interface with elasticsearch
+type rest struct {
 	HTTPClient *http.Client
 	BaseURL string
 }
 
+var (
+	// bulk operations are represented in Elasticsearch as NDJSON formatted pairs where the first object literal denoting
+	// the operation/selectors and the second object containing the payload of the operation itself:
+	//
+	// {"create" : { "_index" : "test", "_type" : "test" }}\n
+	// {"message":"hello, world"}\n
+	//
+	// Will insert a document with contents {"message":"hello, world"} to the test index with type test
+	//
+	bulkOperationModifyPrefix = `{"%v":{"_index":"%v","_type":"%v","_id":"%v"}}`
+	bulkOperationInsertPrefix = `{"index":{"_index":"%v","_type":"%v"}}`
+)
+
 // Call the elasticsearch Search API for  given index
-func (r *REST) SearchIndex(index string, queryString string) ([]*Document, error){
+func (r *rest) searchIndex(index string, queryString string) ([]*Document, error){
 	qs := fmt.Sprintf("_search?q=%v", queryString)
-	URL := r.BuildURL(index, qs)
-	body, err := r.Request("GET", URL, nil)
+	URL := r.buildURL(index, qs)
+	body, err := r.request("GET", URL, nil)
 
 	if err != nil {
 		return nil, err
 	}
 
-	return SearchResponseToDocument(body)
+	return searchResponseToDocument(body)
 }
 
 // Call the elasticsearch Index API
-func (r *REST) DeleteIndex(index string) error {
-	URL := r.BuildURL(index)
-	body, err := r.Request("DELETE", URL, nil)
+func (r *rest) deleteIndex(index string) error {
+	URL := r.buildURL(index)
+	body, err := r.request("DELETE", URL, nil)
 
 	if err != nil {
 		return err
 	}
 
-	return DeleteIndexResponseToDocument(body)
+	return deleteIndexResponseToDocument(body)
 }
 
 // Call the elasticsearch Search API for  given index
-func (r *REST) SearchType(index string, _type string, queryString string) ([]*Document, error){
+func (r *rest) searchType(index string, _type string, queryString string) ([]*Document, error){
 	qs := fmt.Sprintf("_search?q=%v", queryString)
-	URL := r.BuildURL(index, _type, qs)
-	body, err := r.Request("GET", URL, nil)
+	URL := r.buildURL(index, _type, qs)
+	body, err := r.request("GET", URL, nil)
 
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
 	}
 
-	return SearchResponseToDocument(body)
+	return searchResponseToDocument(body)
 }
 
 // Call the elasticsearch Index API
-func (r *REST) InsertDocument(index string, _type string, doc []byte) (*Document, error){
-	URL := r.BuildURL(index, _type, "?refresh")
-	body, err := r.Request("POST", URL, doc)
+func (r *rest) insertDocument(index string, _type string, doc []byte) (string, error){
+	URL := r.buildURL(index, _type, "?refresh")
+	body, err := r.request("POST", URL, doc)
+
+	if err != nil {
+		return "", err
+	}
+
+	return indexResponseToDocument(body)
+}
+
+// Call the elasticsearch Bulk API with insert operations
+func (r *rest) bulkInsertDocuments(index string, _type string, docs [][]byte)([]string, error){
+	// construct an NDJSON payload that satisfies the Elasticsearch API
+	payload := make([][]byte, len(docs) * 2)
+
+	// insert a bulk operation prefix before each document in the docs slice
+	for i := 0; i < len(docs); i++ {
+		payload[i * 2] = []byte(fmt.Sprintf(bulkOperationInsertPrefix, index, _type))
+		payload[(i * 2) + 1] = docs[i]
+	}
+
+	URL := r.buildURL( "_bulk?refresh")
+	body, err := r.bulkRequest("POST", URL, payload)
 
 	if err != nil {
 		return nil, err
 	}
 
-	return IndexResponseToDocument(body)
+	return bulkInsertResponseToIDs(body)
 }
 
 // Call the elasticsearch Document API
-func (r *REST) GetDocument(index string, _type string, ID string) (*Document, error){
-	URL := r.BuildURL(index, _type, ID)
-	body, err := r.Request("GET", URL, nil)
+func (r *rest) getDocument(index string, _type string, ID string) (*Document, error){
+	URL := r.buildURL(index, _type, ID)
+	body, err := r.request("GET", URL, nil)
 
 	if err != nil {
 		return nil, err
 	}
 
-	return GetDocumentResponseToDocument(body)
+	return getDocumentResponseToDocument(body)
 }
 
 // Call the elasticsearch Document API
-func (r *REST) UpdateDocument(index string, _type string, ID string, doc []byte) error {
-	URL := r.BuildURL(index, _type, ID, "?refresh")
-	body, err := r.Request("PUT", URL, doc)
+func (r *rest) updateDocument(index string, _type string, ID string, doc []byte) error {
+	URL := r.buildURL(index, _type, ID, "?refresh")
+	body, err := r.request("PUT", URL, doc)
 
 	if err != nil {
 		return err
 	}
 
-	return UpdateDocumentResponseToDocument(body)
+	return updateDocumentResponseToDocument(body)
+}
+
+// Call the elasticsearch Bulk API with update operations
+func (r *rest) bulkUpdateDocuments(index string, _type string, docs []*Document) ([]string, error){
+	// construct an NDJSON payload that satisfies the Elasticsearch API
+	payload := make([][]byte, len(docs) * 2)
+
+	// insert a bulk operation prefix before each document in the docs slice
+	for i := 0; i < len(docs); i++ {
+		payload[i * 2] = []byte(fmt.Sprintf(bulkOperationModifyPrefix, "update", index, _type, docs[i].ID))
+		doc := fmt.Sprintf(`{"doc":%v}`, string(docs[i].Body))
+		payload[(i * 2) + 1] = []byte(doc)
+	}
+
+	URL := r.buildURL("_bulk")
+	body, err := r.bulkRequest("POST", URL, payload)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return bulkUpdateResponseToIDs(body)
 }
 
 // Call the elasticsearch Document API
-func (r *REST) DeleteDocument(index string, _type string, ID string) error {
-	URL := r.BuildURL(index, _type, ID, "?refresh")
-	body, err := r.Request("DELETE", URL, nil)
+func (r *rest) deleteDocument(index string, _type string, ID string) error {
+	URL := r.buildURL(index, _type, ID, "?refresh")
+	body, err := r.request("DELETE", URL, nil)
 
 	if err != nil {
 		return err
 	}
 
-	return DeleteDocumentResponseToDocument(body)
+	return deleteDocumentResponseToDocument(body)
+}
+
+// Call the elasticsearch Bulk API with delete operations
+func (r *rest) bulkDeleteDocuments(index string, _type string, IDs []string) ([]string, error){
+	// construct an NDJSON payload that satisfies the Elasticsearch bulk API delete operation
+	payload := make([][]byte, len(IDs))
+
+	// insert a bulk operation prefix before each document in the docs slice
+	for idx, ID := range IDs {
+		payload[idx] = []byte(fmt.Sprintf(bulkOperationModifyPrefix, "delete", index, _type, ID))
+	}
+
+
+	URL := r.buildURL("_bulk?refresh")
+	body, err := r.bulkRequest("POST", URL, payload)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return bulkDeleteResponseToIDs(body)
 }
 
 // Concatenate a URL from an array of strings.
-func (r *REST) BuildURL(parts ...string) string {
+func (r *rest) buildURL(parts ...string) string {
 	parts = append([]string{r.BaseURL },  parts...)
 	return strings.Join(parts, "/")
 }
 
-func (r *REST) BuildRequest(method string, url string, body []byte) (*http.Request, error){
+func (r *rest) buildRequest(method string, url string, body []byte) (*http.Request, error){
 	var req *http.Request
 	var err error
 
@@ -126,28 +202,64 @@ func (r *REST) BuildRequest(method string, url string, body []byte) (*http.Reque
 	return req, nil
 }
 
-func (r *REST) SendRequest(req *http.Request) ([]byte, error){
+func (r *rest) buildBulkRequest(method string, url string, bodies [][]byte)(*http.Request, error){
+	buffer := new(bytes.Buffer)
+
+	for _, body := range bodies {
+		buffer.Write(body)
+		buffer.Write([]byte("\n"))
+	}
+
+	req, err := http.NewRequest(method, url, buffer)
+
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", "application/json")
+	return req, nil
+}
+
+func (r *rest) sendRequest(req *http.Request) ([]byte, error){
 	response, err := r.HTTPClient.Do(req)
 
 	if err != nil {
 		return nil, err
 	}
 
-	if response.StatusCode >= 299 {
-		return nil, errors.New(fmt.Sprintf("Invalid status code during InsertDocument: %v", response.StatusCode))
-	}
-
 	defer response.Body.Close()
-	return ioutil.ReadAll(response.Body)
-}
-
-// Generic method to make a JSON request against a configured endpoint.
-func (r *REST) Request(method string, url string, body []byte) ([]byte, error){
-	req, err := r.BuildRequest(method, url, body)
+	contents, err := ioutil.ReadAll(response.Body)
 
 	if err != nil {
 		return nil, err
 	}
 
-	return r.SendRequest(req)
+	if response.StatusCode >= 299 {
+		//fmt.Println(response.StatusCode, string(contents))
+		return nil, errorResponseToError(contents)
+	}
+
+	return contents, err
+}
+
+// Generic method to make a JSON request against a configured endpoint.
+func (r *rest) request(method string, url string, body []byte) ([]byte, error){
+	req, err := r.buildRequest(method, url, body)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return r.sendRequest(req)
+}
+
+// Generic method to make an NDJSON request against a configured endpoint
+func (r *rest) bulkRequest(method string, url string, bodies [][]byte)([]byte, error){
+	req, err := r.buildBulkRequest(method, url, bodies)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return r.sendRequest(req)
 }
