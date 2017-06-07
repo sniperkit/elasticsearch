@@ -17,15 +17,16 @@ install:
    - go get github.com/mattn/goveralls
 
 script:
-  - go test -coverprofile=main.coverprofile
-  - $HOME/gopath/bin/gover
-  - $HOME/gopath/bin/goveralls -coverprofile=gover.coverprofile -service travis-ci
+  - go test
+  #- go test -coverprofile=main.coverprofile
+  #- $HOME/gopath/bin/gover
+  #- $HOME/gopath/bin/goveralls -coverprofile=gover.coverprofile -service travis-ci
 
 before_install:
  - go get github.com/mattn/goveralls
 
-after_success:
-  - coveralls
+#after_success:
+#  - coveralls
 
 before_script:
   - sleep 10
