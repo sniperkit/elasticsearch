@@ -17,16 +17,15 @@ install:
    - go get github.com/mattn/goveralls
 
 script:
-  - go test
-  #- go test -coverprofile=main.coverprofile
-  #- $HOME/gopath/bin/gover
-  #- $HOME/gopath/bin/goveralls -coverprofile=gover.coverprofile -service travis-ci
+  - go test -coverprofile=main.coverprofile
+  - $HOME/gopath/bin/gover
+  - $HOME/gopath/bin/goveralls -coverprofile=gover.coverprofile -service travis-ci
 
 before_install:
  - go get github.com/mattn/goveralls
 
-#after_success:
-#  - coveralls
+after_success:
+  - coveralls
 
 before_script:
   - sleep 10
@@ -34,7 +33,7 @@ before_script:
 addons:
   apt:
     sources:
-      - elasticsearch-2.x
+      - elasticsearch-5.x
     packages:
     - elasticsearch
 
