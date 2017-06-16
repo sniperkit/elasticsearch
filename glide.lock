@@ -1,6 +1,8 @@
-hash: 767a6d8df035b51fac60c4f310e8647a186e0c0ed4c29bcbf7aced85c3339207
-updated: 2017-06-05T09:09:15.564887401-07:00
+hash: 266204fae92aa4429d5879594340f7ce3f2ef92cf74e99d300821fcd215f22ec
+updated: 2017-06-16T06:34:21.278803036-07:00
 imports:
+- name: github.com/b3ntly/uritemplates
+  version: 5743ad79e5a6920765a8b83e2d09ec812438843f
 - name: github.com/gorilla/context
   version: 08b5f424b9271eedf6f9f0ce86cb9396ed337a42
 - name: github.com/gorilla/mux
@@ -9,13 +11,15 @@ imports:
   version: 3573b8b52aa7b37b9358d966a898feb387f62437
 - name: github.com/oklog/ulid
   version: d311cb43c92434ec4072dfbbda3400741d0a6337
-- name: github.com/pkg/errors
-  version: c605e284fe17294bda444b34710735b29d1a9d90
 - name: github.com/stretchr/testify
   version: 69483b4bd14f5845b5a1e55bca19e954e827f1d0
   subpackages:
   - assert
   - require
+- name: google.golang.org/api
+  version: 324744a33f1f37e63dd1695cfb3ec9a3e4a1cb05
+  subpackages:
+  - googleapi/internal/uritemplates
 testImports:
 - name: github.com/davecgh/go-spew
   version: 6d212800a42e8ab5c146b8ace3490ee17e5225f9

@@ -17,7 +17,7 @@ import (
 type Route struct {
 	// Parent where the route was registered (a Router).
 	parent parentRoute
-	// request handler for the route.
+	// Request handler for the route.
 	handler http.Handler
 	// List of matchers.
 	matchers []matcher

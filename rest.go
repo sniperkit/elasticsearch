@@ -4,14 +4,13 @@ import (
 	"bytes"
 	"net/http"
 	"io/ioutil"
-	"strings"
 	"fmt"
 )
 
 // rest interface with elasticsearch
 type rest struct {
 	HTTPClient *http.Client
-	BaseURL string
+	BaseURI    string
 }
 
 var (
@@ -19,7 +18,7 @@ var (
 	// the operation/selectors and the second object containing the payload of the operation itself:
 	//
 	// {"create" : { "_index" : "test", "_type" : "test" }}\n
-	// {"message":"hello, world"}\n
+		// {"message":"hello, world"}\n
 	//
 	// Will insert a document with contents {"message":"hello, world"} to the test index with type test
 	//
@@ -29,8 +28,12 @@ var (
 
 // Call the elasticsearch Search API for  given index
 func (r *rest) searchIndex(index string, queryString string) ([]*Document, error){
-	qs := fmt.Sprintf("_search?q=%v", queryString)
-	URL := r.buildURL(index, qs)
+	URL, err := buildURI(r.BaseURI, map[string]string{"index":index,"suffix":"_search"}, map[string]string{"q":queryString})
+
+	if err != nil {
+		return nil, err
+	}
+
 	body, err := r.request("GET", URL, nil)
 
 	if err != nil {
@@ -42,7 +45,12 @@ func (r *rest) searchIndex(index string, queryString string) ([]*Document, error
 
 // Call the elasticsearch Index API
 func (r *rest) deleteIndex(index string) error {
-	URL := r.buildURL(index)
+	URL, err := buildURI(r.BaseURI, map[string]string{"index":index}, nil)
+
+	if err != nil {
+		return err
+	}
+
 	body, err := r.request("DELETE", URL, nil)
 
 	if err != nil {
@@ -54,8 +62,12 @@ func (r *rest) deleteIndex(index string) error {
 
 // Call the elasticsearch Search API for  given index
 func (r *rest) searchType(index string, _type string, queryString string) ([]*Document, error){
-	qs := fmt.Sprintf("_search?q=%v", queryString)
-	URL := r.buildURL(index, _type, qs)
+	URL, err := buildURI(r.BaseURI, map[string]string{"index":index,"type":_type,"suffix":"_search"}, map[string]string{"q":queryString})
+
+	if err != nil {
+		return nil, err
+	}
+
 	body, err := r.request("GET", URL, nil)
 
 	if err != nil {
@@ -68,7 +80,12 @@ func (r *rest) searchType(index string, _type string, queryString string) ([]*Do
 
 // Call the elasticsearch Index API
 func (r *rest) insertDocument(index string, _type string, doc []byte) (string, error){
-	URL := r.buildURL(index, _type, "?refresh")
+	URL, err := buildURI(r.BaseURI, map[string]string{"index":index,"type":_type}, map[string]string{"refresh":"true"})
+
+	if err != nil {
+		return "", err
+	}
+
 	body, err := r.request("POST", URL, doc)
 
 	if err != nil {
@@ -89,7 +106,12 @@ func (r *rest) bulkInsertDocuments(index string, _type string, docs [][]byte)([]
 		payload[(i * 2) + 1] = docs[i]
 	}
 
-	URL := r.buildURL( "_bulk?refresh")
+	URL, err := buildURI(r.BaseURI, map[string]string{"suffix":"_bulk"}, map[string]string{"refresh":"true"})
+
+	if err != nil {
+		return nil, err
+	}
+
 	body, err := r.bulkRequest("POST", URL, payload)
 
 	if err != nil {
@@ -101,7 +123,12 @@ func (r *rest) bulkInsertDocuments(index string, _type string, docs [][]byte)([]
 
 // Call the elasticsearch Document API
 func (r *rest) getDocument(index string, _type string, ID string) (*Document, error){
-	URL := r.buildURL(index, _type, ID)
+	URL, err := buildURI(r.BaseURI, map[string]string{"index":index,"type":_type,"suffix":ID}, nil)
+
+	if err != nil {
+		return nil, err
+	}
+
 	body, err := r.request("GET", URL, nil)
 
 	if err != nil {
@@ -113,7 +140,12 @@ func (r *rest) getDocument(index string, _type string, ID string) (*Document, er
 
 // Call the elasticsearch Document API
 func (r *rest) updateDocument(index string, _type string, ID string, doc []byte) error {
-	URL := r.buildURL(index, _type, ID, "?refresh")
+	URL, err := buildURI(r.BaseURI, map[string]string{"index":index,"type":_type,"suffix":ID}, map[string]string{"refresh":"true"})
+
+	if err != nil {
+		return err
+	}
+
 	body, err := r.request("PUT", URL, doc)
 
 	if err != nil {
@@ -135,7 +167,12 @@ func (r *rest) bulkUpdateDocuments(index string, _type string, docs []*Document)
 		payload[(i * 2) + 1] = []byte(doc)
 	}
 
-	URL := r.buildURL("_bulk")
+	URL, err := buildURI(r.BaseURI, map[string]string{"suffix":"_bulk"}, nil)
+
+	if err != nil {
+		return nil, err
+	}
+
 	body, err := r.bulkRequest("POST", URL, payload)
 
 	if err != nil {
@@ -147,7 +184,12 @@ func (r *rest) bulkUpdateDocuments(index string, _type string, docs []*Document)
 
 // Call the elasticsearch Document API
 func (r *rest) deleteDocument(index string, _type string, ID string) error {
-	URL := r.buildURL(index, _type, ID, "?refresh")
+	URL, err := buildURI(r.BaseURI, map[string]string{"index":index,"type":_type,"suffix":ID}, map[string]string{"refresh":"true"})
+
+	if err != nil {
+		return err
+	}
+
 	body, err := r.request("DELETE", URL, nil)
 
 	if err != nil {
@@ -168,7 +210,12 @@ func (r *rest) bulkDeleteDocuments(index string, _type string, IDs []string) ([]
 	}
 
 
-	URL := r.buildURL("_bulk?refresh")
+	URL, err := buildURI(r.BaseURI, map[string]string{"suffix":"_bulk"}, map[string]string{"refresh":"true"})
+
+	if err != nil {
+		return nil, err
+	}
+
 	body, err := r.bulkRequest("POST", URL, payload)
 
 	if err != nil {
@@ -176,12 +223,6 @@ func (r *rest) bulkDeleteDocuments(index string, _type string, IDs []string) ([]
 	}
 
 	return bulkDeleteResponseToIDs(body)
-}
-
-// Concatenate a URL from an array of strings.
-func (r *rest) buildURL(parts ...string) string {
-	parts = append([]string{r.BaseURL },  parts...)
-	return strings.Join(parts, "/")
 }
 
 func (r *rest) buildRequest(method string, url string, body []byte) (*http.Request, error){
@@ -235,7 +276,6 @@ func (r *rest) sendRequest(req *http.Request) ([]byte, error){
 	}
 
 	if response.StatusCode >= 299 {
-		//fmt.Println(response.StatusCode, string(contents))
 		return nil, errorResponseToError(contents)
 	}
 

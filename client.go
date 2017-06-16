@@ -25,7 +25,7 @@ type (
 // replace zero-values with default values where desired.
 func New(options *Options) (*Client, error){
 	err := options.Init()
-	r := &rest{ BaseURL: options.URL, HTTPClient: options.HTTPClient }
+	r := &rest{ BaseURI: options.URI, HTTPClient: options.HTTPClient }
 	return &Client{ Options: options, REST: r }, err
 }
 
