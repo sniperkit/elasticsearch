@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"io/ioutil"
 	"fmt"
+	"encoding/json"
+	"github.com/b3ntly/elasticsearch/mock"
 )
 
 // rest interface with elasticsearch
@@ -12,19 +14,6 @@ type rest struct {
 	HTTPClient *http.Client
 	BaseURI    string
 }
-
-var (
-	// bulk operations are represented in Elasticsearch as NDJSON formatted pairs where the first object literal denoting
-	// the operation/selectors and the second object containing the payload of the operation itself:
-	//
-	// {"create" : { "_index" : "test", "_type" : "test" }}\n
-		// {"message":"hello, world"}\n
-	//
-	// Will insert a document with contents {"message":"hello, world"} to the test index with type test
-	//
-	bulkOperationModifyPrefix = `{"%v":{"_index":"%v","_type":"%v","_id":"%v"}}`
-	bulkOperationInsertPrefix = `{"index":{"_index":"%v","_type":"%v"}}`
-)
 
 // Call the elasticsearch Search API for  given index
 func (r *rest) searchIndex(index string, queryString string) ([]*Document, error){
@@ -102,7 +91,13 @@ func (r *rest) bulkInsertDocuments(index string, _type string, docs [][]byte)([]
 
 	// insert a bulk operation prefix before each document in the docs slice
 	for i := 0; i < len(docs); i++ {
-		payload[i * 2] = []byte(fmt.Sprintf(bulkOperationInsertPrefix, index, _type))
+		operation, err := json.Marshal(&mock.BulkIndex{ Index: &mock.Base{Index: index, Type: _type}})
+
+		if err != nil {
+			return nil, err
+		}
+
+		payload[i * 2] = operation
 		payload[(i * 2) + 1] = docs[i]
 	}
 
@@ -162,9 +157,21 @@ func (r *rest) bulkUpdateDocuments(index string, _type string, docs []*Document)
 
 	// insert a bulk operation prefix before each document in the docs slice
 	for i := 0; i < len(docs); i++ {
-		payload[i * 2] = []byte(fmt.Sprintf(bulkOperationModifyPrefix, "update", index, _type, docs[i].ID))
-		doc := fmt.Sprintf(`{"doc":%v}`, string(docs[i].Body))
-		payload[(i * 2) + 1] = []byte(doc)
+		operation, err := json.Marshal(&mock.BulkUpdate{ Update: &mock.Resource{Index: index, Type: _type, ID: docs[i].ID}})
+
+		if err != nil {
+			return nil, err
+		}
+
+		payload[i * 2] = operation
+
+		doc, err := json.Marshal(&mock.BulkUpdatePayload{ Doc: docs[i].Body })
+
+		if err != nil {
+			return nil, err
+		}
+
+		payload[(i * 2) + 1] = doc
 	}
 
 	URL, err := buildURI(r.BaseURI, map[string]string{"suffix":"_bulk"}, nil)
@@ -206,7 +213,13 @@ func (r *rest) bulkDeleteDocuments(index string, _type string, IDs []string) ([]
 
 	// insert a bulk operation prefix before each document in the docs slice
 	for idx, ID := range IDs {
-		payload[idx] = []byte(fmt.Sprintf(bulkOperationModifyPrefix, "delete", index, _type, ID))
+		operation, err := json.Marshal(&mock.BulkDelete{ Delete: &mock.Resource{Index: index, Type: _type, ID: ID}})
+
+		if err != nil {
+			return nil, err
+		}
+
+		payload[idx] = operation
 	}
 
 

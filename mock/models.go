@@ -5,6 +5,17 @@ import (
 )
 
 type (
+	Base struct {
+		Index string `json:"_index"`
+		Type string `json:"_type"`
+	}
+
+	Resource struct {
+		Index string `json:"_index"`
+		Type string `json:"_type"`
+		ID string `json:"_id"`
+	}
+
 	Generic struct {
 		TimedOut bool `json:"timed_out"`
 		Took int `json:"took"`
@@ -34,6 +45,22 @@ type (
 		Index *Generic `json:"index"`
 		Update *Generic `json:"update"`
 		Delete *Generic `json:"delete"`
+	}
+
+	BulkIndex struct {
+		Index *Base `json:"index"`
+	}
+
+	BulkUpdate struct {
+		Update *Resource `json:"update"`
+	}
+
+	BulkUpdatePayload struct {
+		Doc json.RawMessage `json:"doc"`
+	}
+
+	BulkDelete struct {
+		Delete *Resource `json:"delete"`
 	}
 
 	ShardMetadata struct {
