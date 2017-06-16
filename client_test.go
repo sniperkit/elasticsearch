@@ -9,10 +9,11 @@ import (
 	"github.com/b3ntly/elasticsearch/mock"
 	"encoding/json"
 	"os"
+	"strings"
 )
 
 type Example struct {
-	Message string
+	Message string `json:"message"`
 }
 
 const (
@@ -117,7 +118,7 @@ func TestClient(t *testing.T){
 				assert.NotEqual(t, "", ID)
 
 				// find the document
-				docs, err := collection.Search("Message:" + testMessage)
+				docs, err := collection.Search("message:" + testMessage)
 				require.Nil(t, err)
 				assert.NotEqual(t, 0, len(docs))
 				clean(client)
@@ -339,6 +340,38 @@ func TestClient(t *testing.T){
 
 				assert.Nil(t, client.I(testIndex).Drop())
 				clean(client)
+			})
+		})
+
+		t.Run("Test sqlSearch", func(t *testing.T){
+			// skip this test for the mock client
+			if strings.Contains(client.Options.URI, "http://127.0.0.1:9201"){
+				t.Skip()
+			}
+
+			t.Run("will return matching documents on a simple query", func(t *testing.T){
+				collection := client.I(testIndex).T(testType)
+
+				// insert 13 identical documents
+				example := &Example{Message:"eureka"}
+				body, err := json.Marshal(example)
+				require.Nil(t, err)
+
+				inputs := make([][]byte, bulkOperations)
+				for i := 0; i < bulkOperations; i++ {
+					doc := make([]byte, len(body))
+					copy(doc, body)
+					inputs[i] = doc
+				}
+
+				docs, err := collection.BulkInsert(inputs)
+				require.Nil(t, err)
+				require.Equal(t, bulkOperations, len(docs))
+
+				sql := `SELECT Message FROM test WHERE Message = 'eureka' LIMIT 14`
+				results, err := collection.SearchSQL(sql)
+				require.Nil(t, err)
+				require.Equal(t, bulkOperations, len(results))
 			})
 		})
 	}

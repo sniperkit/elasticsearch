@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"fmt"
 	"encoding/json"
+	"github.com/cch123/elasticsql"
 	"github.com/b3ntly/elasticsearch/mock"
 )
 
@@ -47,6 +48,28 @@ func (r *rest) deleteIndex(index string) error {
 	}
 
 	return deleteIndexResponseToDocument(body)
+}
+
+func (r *rest) searchSQL(index string, _type string, sql string) ([]*Document, error){
+	URL, err := buildURI(r.BaseURI, map[string]string{"index":index,"type":index,"suffix":"_search"}, nil)
+
+	if err != nil {
+		return nil, err
+	}
+
+	query, _, err := elasticsql.Convert(sql)
+
+	if err != nil {
+		return nil, err
+	}
+
+	body, err := r.request("GET", URL, []byte(query))
+
+	if err != nil {
+		return nil, err
+	}
+
+	return searchResponseToDocument(body)
 }
 
 // Call the elasticsearch Search API for  given index

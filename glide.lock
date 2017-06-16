@@ -1,8 +1,10 @@
-hash: 266204fae92aa4429d5879594340f7ce3f2ef92cf74e99d300821fcd215f22ec
-updated: 2017-06-16T09:21:01.960652961-07:00
+hash: 5a239685bbbb189e1d04232d0bb5bf8fa546e64f06004444b51bd0fc49b6ab53
+updated: 2017-06-16T11:02:53.613562198-07:00
 imports:
 - name: github.com/b3ntly/uritemplates
   version: 5743ad79e5a6920765a8b83e2d09ec812438843f
+- name: github.com/cch123/elasticsql
+  version: 91d11fca6cac89919d6c08a973194353102ff05e
 - name: github.com/gorilla/context
   version: 08b5f424b9271eedf6f9f0ce86cb9396ed337a42
 - name: github.com/gorilla/mux
@@ -16,6 +18,13 @@ imports:
   subpackages:
   - assert
   - require
+- name: github.com/xwb1989/sqlparser
+  version: a9cdf22bd561e715bba34ee228cb1c06bfa2719c
+  subpackages:
+  - dependency/bson
+  - dependency/bytes2
+  - dependency/hack
+  - dependency/sqltypes
 testImports:
 - name: github.com/davecgh/go-spew
   version: 6d212800a42e8ab5c146b8ace3490ee17e5225f9
