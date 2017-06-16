@@ -55,6 +55,11 @@ func (idx *Index) Drop() error {
 	return idx.Client.REST.deleteIndex(idx.Name)
 }
 
+//
+func (t *Type) SearchSQL(sql string)([]*Document, error){
+	return t.Index.Client.REST.searchSQL(t.Index.Name, t.Name, sql)
+}
+
 // Perform a basic elasticsearch on a given index-type that will return
 // exact string matches on the passed querystring.
 func (t *Type) Search(querystring string)([]*Document, error){

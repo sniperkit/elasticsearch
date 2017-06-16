@@ -27,6 +27,8 @@ before_install:
 install:
    - go get github.com/stretchr/testify
    - go get github.com/b3ntly/uritemplates
+   - go get github.com/xwb1989/sqlparser
+   - go get github.com/cch123/elasticsql
    - go get github.com/hashicorp/go-cleanhttp
    - go get github.com/b3ntly/elasticsearch/mock
    - go get github.com/gorilla/mux

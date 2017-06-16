@@ -10,3 +10,5 @@ import:
 - package: github.com/oklog/ulid
   version: ^0.3.0
 - package: github.com/b3ntly/uritemplates
+- package: github.com/cch123/elasticsql
+- package: github.com/xwb1989/sqlparser
