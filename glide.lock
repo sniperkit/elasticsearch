@@ -1,5 +1,5 @@
 hash: 266204fae92aa4429d5879594340f7ce3f2ef92cf74e99d300821fcd215f22ec
-updated: 2017-06-16T06:34:21.278803036-07:00
+updated: 2017-06-16T09:21:01.960652961-07:00
 imports:
 - name: github.com/b3ntly/uritemplates
   version: 5743ad79e5a6920765a8b83e2d09ec812438843f
@@ -16,10 +16,6 @@ imports:
   subpackages:
   - assert
   - require
-- name: google.golang.org/api
-  version: 324744a33f1f37e63dd1695cfb3ec9a3e4a1cb05
-  subpackages:
-  - googleapi/internal/uritemplates
 testImports:
 - name: github.com/davecgh/go-spew
   version: 6d212800a42e8ab5c146b8ace3490ee17e5225f9
