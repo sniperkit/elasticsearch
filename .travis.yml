@@ -26,6 +26,7 @@ before_install:
 # http://docs.travis-ci.com/user/languages/go/#Dependency-Management
 install:
    - go get github.com/stretchr/testify
+   - go get github.com/b3ntly/uritemplates
    - go get github.com/hashicorp/go-cleanhttp
    - go get github.com/b3ntly/elasticsearch/mock
    - go get github.com/gorilla/mux

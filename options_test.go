@@ -9,20 +9,20 @@ import (
 func TestOptions(t *testing.T){
 	asserts := assert.New(t)
 
-	t.Run("Options.init will set a default URL", func(t *testing.T){
+	t.Run("Options.init will set a default URI", func(t *testing.T){
 		options := &elasticsearch.Options{}
 		err := options.Init()
 
 		asserts.Nil(err)
-		asserts.Equal(elasticsearch.DefaultURL, options.URL)
+		asserts.Equal("http://127.0.0.1:9200{/index,type,suffix}", options.URI)
 	})
 
-	t.Run("Options.init will not override a custom URL", func(t *testing.T){
-		const URL = "elasticsearch:9200"
-		options := &elasticsearch.Options{ URL: URL }
+	t.Run("Options.init will not override a custom URI", func(t *testing.T){
+		const URL = "http://elasticsearch:9200"
+		options := &elasticsearch.Options{ URI: URL }
 		err := options.Init()
 
 		asserts.Nil(err)
-		asserts.Equal(URL, options.URL)
+		asserts.Equal("http://elasticsearch:9200{/index,type,suffix}", options.URI)
 	})
 }

@@ -36,7 +36,7 @@ Let's start registering a couple of URL paths and handlers:
 Here we register three routes mapping URL paths to handlers. This is
 equivalent to how http.HandleFunc() works: if an incoming request URL matches
 one of the paths, the corresponding handler is called passing
-(http.ResponseWriter, *http.request) as parameters.
+(http.ResponseWriter, *http.Request) as parameters.
 
 Paths can have variables. They are defined using the format {name} or
 {name:pattern}. If a regular expression pattern is not defined, the matched
@@ -96,7 +96,7 @@ There are several other matchers that can be added. To match path prefixes:
 
 ...or to use a custom matcher function:
 
-	r.MatcherFunc(func(r *http.request, rm *RouteMatch) bool {
+	r.MatcherFunc(func(r *http.Request, rm *RouteMatch) bool {
 		return r.ProtoMajor == 0
 	})
 

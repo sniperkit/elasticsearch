@@ -25,14 +25,14 @@ func New() *http.Server {
 	database = newStore()
 	router := mux.NewRouter().StrictSlash(true)
 
-	router.HandleFunc("/_bulk", BulkAPI).Methods("POST")
+	router.HandleFunc("/_bulk", BulkAPI).Methods("POST").Queries()
 	router.HandleFunc("/{index}", DeleteIndex).Methods("DELETE")
 	router.HandleFunc("/{index}/_search", SearchIndex).Methods("GET")
 	router.HandleFunc("/{index}/{_type}/_search", SearchType).Methods("GET")
-	router.HandleFunc("/{index}/{_type}/", InsertDocument).Methods("POST")
+	router.HandleFunc("/{index}/{_type}", InsertDocument).Methods("POST")
 	router.HandleFunc("/{index}/{_type}/{id}", GetDocumentByID).Methods("GET")
-	router.HandleFunc("/{index}/{_type}/{id}/", UpdateDocumentByID).Methods("PUT")
-	router.HandleFunc("/{index}/{_type}/{id}/", DeleteDocumentByID).Methods("DELETE")
+	router.HandleFunc("/{index}/{_type}/{id}", UpdateDocumentByID).Methods("PUT")
+	router.HandleFunc("/{index}/{_type}/{id}", DeleteDocumentByID).Methods("DELETE")
 
 	return &http.Server{
 		Handler: router,

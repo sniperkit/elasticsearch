@@ -7,7 +7,7 @@ import (
 )
 
 type Options struct {
-	URL string
+	URI        string
 	HTTPClient *http.Client
 }
 
@@ -17,17 +17,20 @@ var (
 )
 
 func (opts *Options) Init() error {
-	if opts.URL == "" {
-		opts.URL = DefaultURL
+	if opts.URI == "" {
+		opts.URI = DefaultURL
+	} else {
+		uri, err := url.Parse(opts.URI)
+
+		if err != nil {
+			return err
+		}
+
+		opts.URI = uri.String()
 	}
 
-	uri, err := url.Parse(opts.URL)
-
-	if err != nil {
-		return err
-	}
-
-	opts.URL = uri.String()
+	// add templating suffix
+	opts.URI = opts.URI + "{/index,type,suffix}"
 
 	if opts.HTTPClient == nil {
 		opts.HTTPClient = DefaultHTTPClient

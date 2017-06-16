@@ -32,9 +32,9 @@ func setupMockServer(){
 	log.Fatal(mock.New().ListenAndServe())
 }
 
-// returns a client with the configured URL and a single document
+// returns a client with the configured URI and a single document
 func getClient(URL string) (*elasticsearch.Client, error){
-	client, err := elasticsearch.New(&elasticsearch.Options{ URL: URL })
+	client, err := elasticsearch.New(&elasticsearch.Options{ URI: URL })
 
 	if err != nil {
 		return nil, err
