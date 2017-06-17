@@ -1,15 +1,15 @@
 package elasticsearch_test
 
 import (
-	"log"
-	"testing"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
+	"encoding/json"
 	"github.com/b3ntly/elasticsearch"
 	"github.com/b3ntly/elasticsearch/mock"
-	"encoding/json"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+	"log"
 	"os"
 	"strings"
+	"testing"
 )
 
 type Example struct {
@@ -17,25 +17,25 @@ type Example struct {
 }
 
 const (
-	testIndex = "test"
-	testType = "test"
-	testMessage = "hello"
+	testIndex         = "test"
+	testType          = "test"
+	testMessage       = "hello"
 	testMessageChange = "world"
 	// the number of elements to insert/update/delete in tests of the bulk API
 	bulkOperations = 5
 )
 
 var (
-	sampleDocument = &Example{ testMessage }
+	sampleDocument = &Example{testMessage}
 )
 
-func setupMockServer(){
+func setupMockServer() {
 	log.Fatal(mock.New().ListenAndServe())
 }
 
 // returns a client with the configured URI and a single document
-func getClient(URL string) (*elasticsearch.Client, error){
-	client, err := elasticsearch.New(&elasticsearch.Options{ URI: URL })
+func getClient(URL string) (*elasticsearch.Client, error) {
+	client, err := elasticsearch.New(&elasticsearch.Options{URI: URL})
 
 	if err != nil {
 		return nil, err
@@ -45,19 +45,19 @@ func getClient(URL string) (*elasticsearch.Client, error){
 	return client, nil
 }
 
-func clean(client *elasticsearch.Client){
+func clean(client *elasticsearch.Client) {
 	// silent error is acceptable here as elasticsearch will throw a 404 when trying to delete nonexistent index
 	_ = client.I(testIndex).Drop()
 }
 
-func TestMain(m *testing.M){
+func TestMain(m *testing.M) {
 	go setupMockServer()
 	retCode := m.Run()
 	os.Exit(retCode)
 }
 
 // Integration tests for standard usage
-func TestClient(t *testing.T){
+func TestClient(t *testing.T) {
 	// client which will test against a real elasticsearch service
 	client, err := getClient("http://127.0.0.1:9200")
 	require.Nil(t, err)
@@ -66,11 +66,11 @@ func TestClient(t *testing.T){
 	mockClient, err := getClient("http://127.0.0.1:9201")
 	require.Nil(t, err)
 
-	clients := []*elasticsearch.Client { client, mockClient }
+	clients := []*elasticsearch.Client{client, mockClient}
 
 	for _, client := range clients {
-		t.Run("Insert Document", func(t *testing.T){
-			t.Run("Returns a newly created ID", func(t *testing.T){
+		t.Run("Insert Document", func(t *testing.T) {
+			t.Run("Returns a newly created ID", func(t *testing.T) {
 				collection := client.I(testIndex).T(testType)
 				body, err := json.Marshal(sampleDocument)
 				require.Nil(t, err)
@@ -81,12 +81,11 @@ func TestClient(t *testing.T){
 			})
 		})
 
-		t.Run("Bulk Insert Documents", func(t *testing.T){
-			t.Run("Returns the proper number of inserted documents with valid IDs", func(t *testing.T){
+		t.Run("Bulk Insert Documents", func(t *testing.T) {
+			t.Run("Returns the proper number of inserted documents with valid IDs", func(t *testing.T) {
 				collection := client.I(testIndex).T(testType)
 				body, err := json.Marshal(sampleDocument)
 				require.Nil(t, err)
-
 
 				inputs := make([][]byte, bulkOperations)
 				for i := 0; i < bulkOperations; i++ {
@@ -107,8 +106,8 @@ func TestClient(t *testing.T){
 			})
 		})
 
-		t.Run("Find document by property", func(t *testing.T){
-			t.Run("Returns at least one document", func(t *testing.T){
+		t.Run("Find document by property", func(t *testing.T) {
+			t.Run("Returns at least one document", func(t *testing.T) {
 				// ensure at least one document
 				collection := client.I(testIndex).T(testType)
 				body, err := json.Marshal(sampleDocument)
@@ -125,8 +124,8 @@ func TestClient(t *testing.T){
 			})
 		})
 
-		t.Run("Find document by ID", func(t *testing.T){
-			t.Run("Returns at least one document", func(t *testing.T){
+		t.Run("Find document by ID", func(t *testing.T) {
+			t.Run("Returns at least one document", func(t *testing.T) {
 				// ensure at least one document
 				collection := client.I(testIndex).T(testType)
 				body, err := json.Marshal(sampleDocument)
@@ -143,8 +142,8 @@ func TestClient(t *testing.T){
 			})
 		})
 
-		t.Run("Update Document by ID", func(t *testing.T){
-			t.Run("will update a document by ID", func(t *testing.T){
+		t.Run("Update Document by ID", func(t *testing.T) {
+			t.Run("will update a document by ID", func(t *testing.T) {
 				// ensure at least one document
 				collection := client.I(testIndex).T(testType)
 				body, err := json.Marshal(sampleDocument)
@@ -154,7 +153,7 @@ func TestClient(t *testing.T){
 				assert.NotEqual(t, "", ID)
 
 				// update the document
-				update, err := json.Marshal(&Example{ Message: testMessageChange })
+				update, err := json.Marshal(&Example{Message: testMessageChange})
 				require.Nil(t, err)
 				err = collection.UpdateById(ID, update)
 				require.Nil(t, err)
@@ -171,8 +170,8 @@ func TestClient(t *testing.T){
 			})
 		})
 
-		t.Run("Bulk Update Documents", func(t *testing.T){
-			t.Run("Bulk update will properly update the given IDs", func(t *testing.T){
+		t.Run("Bulk Update Documents", func(t *testing.T) {
+			t.Run("Bulk update will properly update the given IDs", func(t *testing.T) {
 				// insert base documents
 				collection := client.I(testIndex).T(testType)
 				body, err := json.Marshal(sampleDocument)
@@ -195,11 +194,11 @@ func TestClient(t *testing.T){
 
 				// update base documents with different field
 				updates := make([]*elasticsearch.Document, bulkOperations)
-				updatedBody, err := json.Marshal(&Example{ testMessageChange })
+				updatedBody, err := json.Marshal(&Example{testMessageChange})
 				require.Nil(t, err)
 
 				for i := 0; i < len(IDs); i++ {
-					update := &elasticsearch.Document { ID: IDs[i], Body: make([]byte, len(updatedBody)) }
+					update := &elasticsearch.Document{ID: IDs[i], Body: make([]byte, len(updatedBody))}
 					copy(update.Body, updatedBody)
 					updates[i] = update
 				}
@@ -217,7 +216,7 @@ func TestClient(t *testing.T){
 			})
 		})
 
-		t.Run("Delete Document by ID", func(t *testing.T){
+		t.Run("Delete Document by ID", func(t *testing.T) {
 			t.Run("will delete a document by id", func(t *testing.T) {
 				// ensure at least one document
 				collection := client.I(testIndex).T(testType)
@@ -240,7 +239,7 @@ func TestClient(t *testing.T){
 			})
 		})
 
-		t.Run("Bulk delete Documents", func(t *testing.T){
+		t.Run("Bulk delete Documents", func(t *testing.T) {
 			// insert base documents
 			collection := client.I(testIndex).T(testType)
 			body, err := json.Marshal(sampleDocument)
@@ -285,8 +284,8 @@ func TestClient(t *testing.T){
 			clean(client)
 		})
 
-		t.Run("Search Index", func(t *testing.T){
-			t.Run("will return at least one document", func(t *testing.T){
+		t.Run("Search Index", func(t *testing.T) {
+			t.Run("will return at least one document", func(t *testing.T) {
 				// ensure at least one document
 				collection := client.I(testIndex).T(testType)
 				body, err := json.Marshal(sampleDocument)
@@ -295,7 +294,6 @@ func TestClient(t *testing.T){
 				require.Nil(t, err)
 				assert.NotEqual(t, "", ID)
 
-
 				docs, err := collection.Search("*:*")
 				require.Nil(t, err)
 				assert.NotEqual(t, 0, len(docs))
@@ -303,7 +301,7 @@ func TestClient(t *testing.T){
 
 			})
 
-			t.Run("searching on a non existent index returns an error", func(t *testing.T){
+			t.Run("searching on a non existent index returns an error", func(t *testing.T) {
 				collection := mockClient.I("hunter2")
 				_, err := collection.Search("*:*")
 				require.NotNil(t, err)
@@ -311,8 +309,8 @@ func TestClient(t *testing.T){
 			})
 		})
 
-		t.Run("Search Type", func(t *testing.T){
-			t.Run("returns at least one document", func(t *testing.T){
+		t.Run("Search Type", func(t *testing.T) {
+			t.Run("returns at least one document", func(t *testing.T) {
 				// ensure at least one document
 				collection := client.I(testIndex).T(testType)
 				body, err := json.Marshal(sampleDocument)
@@ -328,8 +326,8 @@ func TestClient(t *testing.T){
 			})
 		})
 
-		t.Run("Drop Index", func(t *testing.T){
-			t.Run("will drop an index without error", func(t *testing.T){
+		t.Run("Drop Index", func(t *testing.T) {
+			t.Run("will drop an index without error", func(t *testing.T) {
 				// ensure the index exists to begin with
 				collection := client.I(testIndex).T(testType)
 				body, err := json.Marshal(sampleDocument)
@@ -343,17 +341,17 @@ func TestClient(t *testing.T){
 			})
 		})
 
-		t.Run("Test sqlSearch", func(t *testing.T){
+		t.Run("Test sqlSearch", func(t *testing.T) {
 			// skip this test for the mock client
-			if strings.Contains(client.Options.URI, "http://127.0.0.1:9201"){
+			if strings.Contains(client.Options.URI, "http://127.0.0.1:9201") {
 				t.Skip()
 			}
 
-			t.Run("will return matching documents on a simple query", func(t *testing.T){
+			t.Run("will return matching documents on a simple query", func(t *testing.T) {
 				collection := client.I(testIndex).T(testType)
 
 				// insert 13 identical documents
-				example := &Example{Message:"eureka"}
+				example := &Example{Message: "eureka"}
 				body, err := json.Marshal(example)
 				require.Nil(t, err)
 
