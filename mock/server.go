@@ -1,11 +1,11 @@
 package mock
 
 import (
-	"net/http"
 	"github.com/gorilla/mux"
 	"github.com/oklog/ulid"
-	"time"
 	"math/rand"
+	"net/http"
+	"time"
 )
 
 var (
@@ -14,7 +14,7 @@ var (
 
 	// create simple ULID using basic source of entropy
 	timestamp = time.Unix(1000000, 0)
-	entropy = rand.New(rand.NewSource(timestamp.UnixNano()))
+	entropy   = rand.New(rand.NewSource(timestamp.UnixNano()))
 )
 
 func ULID() string {
@@ -36,6 +36,6 @@ func New() *http.Server {
 
 	return &http.Server{
 		Handler: router,
-		Addr: "127.0.0.1:9201",
+		Addr:    "127.0.0.1:9201",
 	}
 }

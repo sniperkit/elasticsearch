@@ -2,16 +2,16 @@ package mock
 
 import (
 	"bytes"
-	"net/http"
 	"encoding/json"
-	"io/ioutil"
 	"github.com/gorilla/mux"
+	"io/ioutil"
+	"net/http"
 )
 
 // accept a raw request body and return two slices containing
 // individual bulk request operations and their payloads
 // note the request body is NDJSON not regular JSON
-func parseBulkRequest(body []byte)([]*Operation, [][]byte, error){
+func parseBulkRequest(body []byte) ([]*Operation, [][]byte, error) {
 	// parse the first object of the body and determine if
 	// this is a bulk delete operation (which must be handled separately)
 	objects := bytes.Split(body, []byte("\n"))
@@ -28,10 +28,10 @@ func parseBulkRequest(body []byte)([]*Operation, [][]byte, error){
 	// except for delete operations which do not contain payloads
 	// thus we must only process operations for pure delete requests
 	var operations []*Operation
-    var payloads [][]byte
+	var payloads [][]byte
 	if firstOperation.Delete != nil {
 		// the last object is an empty line, conforming with elasticsearch's implementation of NDJSON...
-		operations = make([]*Operation, len(objects) - 1)
+		operations = make([]*Operation, len(objects)-1)
 		payloads = make([][]byte, 0)
 
 		// process each object into an operation
@@ -51,40 +51,40 @@ func parseBulkRequest(body []byte)([]*Operation, [][]byte, error){
 			operations[idx] = op
 		}
 
-	// for all other cases we split objects into a slice
-	// operations containing all odd-indexed elements of objects
-	// and payloads containing all even-indexed elements
+		// for all other cases we split objects into a slice
+		// operations containing all odd-indexed elements of objects
+		// and payloads containing all even-indexed elements
 	} else {
-		operations = make([]*Operation, len(objects) / 2)
-		payloads = make([][]byte, len(objects) / 2)
+		operations = make([]*Operation, len(objects)/2)
+		payloads = make([][]byte, len(objects)/2)
 
-		for i := 0; i < len(objects) / 2; i++ {
+		for i := 0; i < len(objects)/2; i++ {
 			op := new(*Operation)
-			err := json.Unmarshal(objects[i * 2], op)
+			err := json.Unmarshal(objects[i*2], op)
 
 			if err != nil {
 				return nil, nil, err
 			}
 
 			operations[i] = *op
-			payloads[i] = objects[i * 2 + 1]
+			payloads[i] = objects[i*2+1]
 		}
 	}
 
 	return operations, payloads, err
 }
 
-func BulkAPI(w http.ResponseWriter, req *http.Request){
+func BulkAPI(w http.ResponseWriter, req *http.Request) {
 	contents, err := ioutil.ReadAll(req.Body)
 
 	if err != nil {
-		http.Error(w, err.Error() , http.StatusBadRequest)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
 
 	operations, payloads, err := parseBulkRequest(contents)
 
 	if err != nil {
-		http.Error(w, err.Error() , http.StatusBadRequest)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
 
 	for idx, operation := range operations {
@@ -103,7 +103,7 @@ func BulkAPI(w http.ResponseWriter, req *http.Request){
 			operation.Index.Created = true
 			operation.Index.ID = doc.ID
 
-		// handle bulk update operations
+			// handle bulk update operations
 		} else if operation.Update != nil {
 			payload := payloads[idx]
 			updated, err := database.upsertDocument(operation.Update.Index, operation.Update.Type, operation.Update.ID, payload)
@@ -115,7 +115,6 @@ func BulkAPI(w http.ResponseWriter, req *http.Request){
 				return
 			}
 
-			operation.Update.ID = operation.Update.ID
 			operation.Update.Created = !updated
 
 		} else if operation.Delete != nil {
@@ -124,7 +123,7 @@ func BulkAPI(w http.ResponseWriter, req *http.Request){
 		}
 	}
 
-	response := &Generic{ Items: operations }
+	response := &Generic{Items: operations}
 	js, err := json.Marshal(response)
 
 	if err != nil {
@@ -137,7 +136,7 @@ func BulkAPI(w http.ResponseWriter, req *http.Request){
 	w.Write(js)
 }
 
-func DeleteIndex(w http.ResponseWriter, req *http.Request){
+func DeleteIndex(w http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 	index := vars["index"]
 
@@ -160,7 +159,7 @@ func DeleteIndex(w http.ResponseWriter, req *http.Request){
 
 }
 
-func SearchIndex(w http.ResponseWriter, req *http.Request){
+func SearchIndex(w http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 	index := vars["index"]
 
@@ -186,7 +185,7 @@ func SearchIndex(w http.ResponseWriter, req *http.Request){
 	w.Write(js)
 }
 
-func SearchType(w http.ResponseWriter, req *http.Request){
+func SearchType(w http.ResponseWriter, req *http.Request) {
 	// todo: fix nomenclature
 	vars := mux.Vars(req)
 	index := vars["index"]
@@ -214,7 +213,7 @@ func SearchType(w http.ResponseWriter, req *http.Request){
 	w.Write(js)
 }
 
-func InsertDocument(w http.ResponseWriter, req *http.Request){
+func InsertDocument(w http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 	index := vars["index"]
 	_type := vars["_type"]
@@ -235,11 +234,11 @@ func InsertDocument(w http.ResponseWriter, req *http.Request){
 
 	// return proper response
 	resp := Generic{
-		Index: index,
-		Type: _type,
-		ID: doc.ID,
+		Index:   index,
+		Type:    _type,
+		ID:      doc.ID,
 		Created: true,
-		Result: "created",
+		Result:  "created",
 	}
 
 	js, err := json.Marshal(resp)
@@ -253,7 +252,7 @@ func InsertDocument(w http.ResponseWriter, req *http.Request){
 	w.Write(js)
 }
 
-func GetDocumentByID(w http.ResponseWriter, req *http.Request){
+func GetDocumentByID(w http.ResponseWriter, req *http.Request) {
 	// handle req
 	vars := mux.Vars(req)
 	index := vars["index"]
@@ -271,10 +270,10 @@ func GetDocumentByID(w http.ResponseWriter, req *http.Request){
 
 		// return proper response
 		resp := Generic{
-			Index: index,
-			Type: _type,
-			ID: ID,
-			Found: true,
+			Index:  index,
+			Type:   _type,
+			ID:     ID,
+			Found:  true,
 			Source: body,
 		}
 
@@ -291,8 +290,8 @@ func GetDocumentByID(w http.ResponseWriter, req *http.Request){
 	} else {
 		resp := Generic{
 			Index: index,
-			Type: _type,
-			ID: ID,
+			Type:  _type,
+			ID:    ID,
 			Found: false,
 		}
 
@@ -308,7 +307,7 @@ func GetDocumentByID(w http.ResponseWriter, req *http.Request){
 	}
 }
 
-func UpdateDocumentByID(w http.ResponseWriter, req *http.Request){
+func UpdateDocumentByID(w http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 	index := vars["index"]
 	_type := vars["_type"]
@@ -329,14 +328,16 @@ func UpdateDocumentByID(w http.ResponseWriter, req *http.Request){
 	}
 
 	result := "updated"
-	if !updated { result = "created" }
+	if !updated {
+		result = "created"
+	}
 
 	resp := &Generic{
-		Index: index,
-		Type: _type,
-		ID: ID,
+		Index:   index,
+		Type:    _type,
+		ID:      ID,
 		Created: !updated,
-		Result: result,
+		Result:  result,
 	}
 
 	js, err := json.Marshal(resp)
@@ -350,7 +351,7 @@ func UpdateDocumentByID(w http.ResponseWriter, req *http.Request){
 	w.Write(js)
 }
 
-func DeleteDocumentByID(w http.ResponseWriter, req *http.Request){
+func DeleteDocumentByID(w http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 	index := vars["index"]
 	_type := vars["_type"]
@@ -360,9 +361,9 @@ func DeleteDocumentByID(w http.ResponseWriter, req *http.Request){
 
 	resp := &Generic{
 		Found: deleted,
-		ID: ID,
+		ID:    ID,
 		Index: index,
-		Type: _type,
+		Type:  _type,
 	}
 
 	js, err := json.Marshal(resp)

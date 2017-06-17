@@ -1,9 +1,9 @@
 package mock
 
 import (
-	"sync"
-	"errors"
 	"encoding/json"
+	"errors"
+	"sync"
 )
 
 // store provides the facilities for replicating in-memory operations
@@ -13,11 +13,10 @@ type store struct {
 
 	// index:type:ids:document
 	Indexes map[string]map[string]map[string]*Document
-
 }
 
 func newStore() *store {
-	return &store {
+	return &store{
 		Indexes: make(map[string]map[string]map[string]*Document),
 	}
 }
@@ -43,13 +42,14 @@ func (s *store) getOrCreateType(index string, name string) map[string]*Document 
 	}
 	return _type
 }
+
 // endhelpers
 
 func (s *store) insert(index string, _type string, payload []byte) (*Document, error) {
 	s.Lock()
 	defer s.Unlock()
 
-	document := &Document{ ID: ULID() }
+	document := &Document{ID: ULID()}
 	err := json.Unmarshal(payload, &document.Body)
 
 	if err != nil {
@@ -73,11 +73,11 @@ func (s *store) searchIndex(index string) ([]*SearchHit, error) {
 			for _, doc := range _type {
 				body, _ := json.Marshal(doc.Body)
 				hit := &SearchHit{
-					ID: doc.ID,
-					Index: index,
-					Type: typeName,
-					Score: 0.0,
-					Source : body,
+					ID:     doc.ID,
+					Index:  index,
+					Type:   typeName,
+					Score:  0.0,
+					Source: body,
 				}
 
 				hits = append(hits, hit)
@@ -100,11 +100,11 @@ func (s *store) searchType(index string, _type string) ([]*SearchHit, error) {
 		for _, doc := range collection {
 			body, _ := json.Marshal(doc.Body)
 			hit := &SearchHit{
-				ID: doc.ID,
-				Index: index,
-				Type: _type,
-				Score: 0.0,
-				Source : body,
+				ID:     doc.ID,
+				Index:  index,
+				Type:   _type,
+				Score:  0.0,
+				Source: body,
 			}
 
 			hits = append(hits, hit)
@@ -116,7 +116,7 @@ func (s *store) searchType(index string, _type string) ([]*SearchHit, error) {
 	return hits, nil
 }
 
-func (s *store) deleteIndex(name string){
+func (s *store) deleteIndex(name string) {
 	s.Lock()
 	defer s.Unlock()
 	delete(s.Indexes, name)
@@ -128,12 +128,12 @@ func (s *store) getDocument(index string, _type string, ID string) *Document {
 
 	if doc, exists := s.Indexes[index][_type][ID]; exists {
 		return doc
-	} else {
-		return nil
 	}
+
+	return nil
 }
 
-func (s *store) upsertDocument(index string, _type string, ID string, body []byte) (bool, error){
+func (s *store) upsertDocument(index string, _type string, ID string, body []byte) (bool, error) {
 	s.Lock()
 	defer s.Unlock()
 	var err error
@@ -167,8 +167,8 @@ func (s *store) deleteDocument(index string, _type string, ID string) bool {
 
 	if _, exists := s.Indexes[index][_type][ID]; !exists {
 		return false
-	} else {
-		delete(s.Indexes[index][_type], ID)
-		return true
 	}
+
+	delete(s.Indexes[index][_type], ID)
+	return true
 }

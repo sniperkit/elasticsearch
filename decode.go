@@ -1,10 +1,10 @@
 package elasticsearch
 
 import (
-	"github.com/b3ntly/elasticsearch/mock"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/b3ntly/elasticsearch/mock"
 )
 
 // Reference to an elasticsearch document. To simplify deserialization between
@@ -13,7 +13,7 @@ import (
 //
 // Elasticsearch also separates document IDs from document bodies, hence the separate struct fields.
 type Document struct {
-	ID string
+	ID   string
 	Body json.RawMessage
 }
 
@@ -33,7 +33,7 @@ func errorResponseToError(HTTPResponseBody []byte) error {
 	return errors.New(reason)
 }
 
-func indexResponseToDocument(HTTPResponseBody []byte) (string, error){
+func indexResponseToDocument(HTTPResponseBody []byte) (string, error) {
 	response := &mock.Generic{}
 	err := json.Unmarshal(HTTPResponseBody, response)
 
@@ -47,8 +47,6 @@ func indexResponseToDocument(HTTPResponseBody []byte) (string, error){
 
 	return response.ID, err
 }
-
-
 
 func deleteIndexResponseToDocument(HTTPResponseBody []byte) error {
 	response := &mock.Generic{}
@@ -65,7 +63,7 @@ func deleteIndexResponseToDocument(HTTPResponseBody []byte) error {
 	return nil
 }
 
-func getDocumentResponseToDocument(HTTPResponseBody []byte) (*Document, error){
+func getDocumentResponseToDocument(HTTPResponseBody []byte) (*Document, error) {
 	//fmt.Println(string(HTTPResponseBody))
 	response := &mock.Generic{}
 	err := json.Unmarshal(HTTPResponseBody, response)
@@ -78,10 +76,10 @@ func getDocumentResponseToDocument(HTTPResponseBody []byte) (*Document, error){
 		return nil, errors.New(fmt.Sprintf("Failed to get document with id: %v", response.ID))
 	}
 
-	return &Document{ ID: response.ID, Body: response.Source }, err
+	return &Document{ID: response.ID, Body: response.Source}, err
 }
 
-func searchResponseToDocument(HTTPResponseBody []byte) ([]*Document, error){
+func searchResponseToDocument(HTTPResponseBody []byte) ([]*Document, error) {
 	response := &mock.Generic{}
 	err := json.Unmarshal(HTTPResponseBody, response)
 
@@ -92,7 +90,7 @@ func searchResponseToDocument(HTTPResponseBody []byte) ([]*Document, error){
 	documents := make([]*Document, len(response.Hits.Hits))
 	for i, val := range response.Hits.Hits {
 		documents[i] = &Document{
-			ID: val.ID,
+			ID:   val.ID,
 			Body: val.Source,
 		}
 	}
@@ -149,7 +147,7 @@ func bulkInsertResponseToIDs(HTTPResponseBody []byte) ([]string, error) {
 	return inserted, err
 }
 
-func bulkUpdateResponseToIDs(HTTPResponseBody []byte)([]string, error){
+func bulkUpdateResponseToIDs(HTTPResponseBody []byte) ([]string, error) {
 	response := &mock.Generic{}
 	err := json.Unmarshal(HTTPResponseBody, response)
 
@@ -166,7 +164,7 @@ func bulkUpdateResponseToIDs(HTTPResponseBody []byte)([]string, error){
 	return updated, err
 }
 
-func bulkDeleteResponseToIDs(HTTPResponseBody []byte)([]string, error){
+func bulkDeleteResponseToIDs(HTTPResponseBody []byte) ([]string, error) {
 	//fmt.Println(string(HTTPResponseBody))
 	response := &mock.Generic{}
 	err := json.Unmarshal(HTTPResponseBody, response)
@@ -186,6 +184,3 @@ func bulkDeleteResponseToIDs(HTTPResponseBody []byte)([]string, error){
 
 	return deleted, err
 }
-
-
-

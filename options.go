@@ -1,9 +1,9 @@
 package elasticsearch
 
 import (
-	"net/url"
-	"net/http"
 	"github.com/hashicorp/go-cleanhttp"
+	"net/http"
+	"net/url"
 )
 
 type Options struct {
@@ -12,7 +12,7 @@ type Options struct {
 }
 
 var (
-	DefaultURL = "http://127.0.0.1:9200"
+	DefaultURL        = "http://127.0.0.1:9200"
 	DefaultHTTPClient = cleanhttp.DefaultClient()
 )
 
