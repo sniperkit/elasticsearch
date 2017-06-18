@@ -5,17 +5,8 @@ import (
 	"errors"
 	"fmt"
 	"github.com/b3ntly/elasticsearch/mock"
+	"github.com/b3ntly/insertjson"
 )
-
-// Reference to an elasticsearch document. To simplify deserialization between
-// the elasticsearch rest response and the struct type response of this library,
-// we do not decode the document but instead leave it serialized as a *json.RawMessage.
-//
-// Elasticsearch also separates document IDs from document bodies, hence the separate struct fields.
-type Document struct {
-	ID   string
-	Body json.RawMessage
-}
 
 func errorResponseToError(HTTPResponseBody []byte) error {
 	response := &mock.Generic{}
@@ -63,7 +54,7 @@ func deleteIndexResponseToDocument(HTTPResponseBody []byte) error {
 	return nil
 }
 
-func getDocumentResponseToDocument(HTTPResponseBody []byte) (*Document, error) {
+func getDocumentResponseToDocument(HTTPResponseBody []byte) ([]byte, error) {
 	//fmt.Println(string(HTTPResponseBody))
 	response := &mock.Generic{}
 	err := json.Unmarshal(HTTPResponseBody, response)
@@ -76,10 +67,10 @@ func getDocumentResponseToDocument(HTTPResponseBody []byte) (*Document, error) {
 		return nil, errors.New(fmt.Sprintf("Failed to get document with id: %v", response.ID))
 	}
 
-	return &Document{ID: response.ID, Body: response.Source}, err
+	return insertjson.Property("_id", response.ID, response.Source), err
 }
 
-func searchResponseToDocument(HTTPResponseBody []byte) ([]*Document, error) {
+func searchResponseToDocument(HTTPResponseBody []byte) ([][]byte, error) {
 	response := &mock.Generic{}
 	err := json.Unmarshal(HTTPResponseBody, response)
 
@@ -87,12 +78,9 @@ func searchResponseToDocument(HTTPResponseBody []byte) ([]*Document, error) {
 		return nil, err
 	}
 
-	documents := make([]*Document, len(response.Hits.Hits))
+	documents := make([][]byte, len(response.Hits.Hits))
 	for i, val := range response.Hits.Hits {
-		documents[i] = &Document{
-			ID:   val.ID,
-			Body: val.Source,
-		}
+		documents[i] = insertjson.Property("_id", val.ID, val.Source)
 	}
 
 	return documents, err

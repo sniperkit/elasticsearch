@@ -17,7 +17,7 @@ type rest struct {
 }
 
 // Call the elasticsearch Search API for  given index
-func (r *rest) searchIndex(index string, queryString string) ([]*Document, error) {
+func (r *rest) searchIndex(index string, queryString string) ([][]byte, error) {
 	URL, err := buildURI(r.BaseURI, map[string]string{"index": index, "suffix": "_search"}, map[string]string{"q": queryString})
 
 	if err != nil {
@@ -50,7 +50,7 @@ func (r *rest) deleteIndex(index string) error {
 	return deleteIndexResponseToDocument(body)
 }
 
-func (r *rest) searchSQL(index string, _type string, sql string) ([]*Document, error) {
+func (r *rest) searchSQL(index string, _type string, sql string) ([][]byte, error) {
 	URL, err := buildURI(r.BaseURI, map[string]string{"index": index, "type": index, "suffix": "_search"}, nil)
 
 	if err != nil {
@@ -73,7 +73,7 @@ func (r *rest) searchSQL(index string, _type string, sql string) ([]*Document, e
 }
 
 // Call the elasticsearch Search API for  given index
-func (r *rest) searchType(index string, _type string, queryString string) ([]*Document, error) {
+func (r *rest) searchType(index string, _type string, queryString string) ([][]byte, error) {
 	URL, err := buildURI(r.BaseURI, map[string]string{"index": index, "type": _type, "suffix": "_search"}, map[string]string{"q": queryString})
 
 	if err != nil {
@@ -140,7 +140,7 @@ func (r *rest) bulkInsertDocuments(index string, _type string, docs [][]byte) ([
 }
 
 // Call the elasticsearch Document API
-func (r *rest) getDocument(index string, _type string, ID string) (*Document, error) {
+func (r *rest) getDocument(index string, _type string, ID string) ([]byte, error) {
 	URL, err := buildURI(r.BaseURI, map[string]string{"index": index, "type": _type, "suffix": ID}, nil)
 
 	if err != nil {
@@ -174,7 +174,7 @@ func (r *rest) updateDocument(index string, _type string, ID string, doc []byte)
 }
 
 // Call the elasticsearch Bulk API with update operations
-func (r *rest) bulkUpdateDocuments(index string, _type string, docs []*Document) ([]string, error) {
+func (r *rest) bulkUpdateDocuments(index string, _type string, docs []*mock.GenericDocument) ([]string, error) {
 	// construct an NDJSON payload that satisfies the Elasticsearch API
 	payload := make([][]byte, len(docs)*2)
 

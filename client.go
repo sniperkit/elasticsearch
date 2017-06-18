@@ -1,5 +1,7 @@
 package elasticsearch
 
+import "github.com/b3ntly/elasticsearch/mock"
+
 type (
 	// Client interface for this library
 	Client struct {
@@ -46,7 +48,7 @@ func (idx *Index) T(name string) *Type {
 
 // Perform a basic elasticsearch query on an index that will return exact matches
 // on the passed querystring.
-func (idx *Index) Search(querystring string) ([]*Document, error) {
+func (idx *Index) Search(querystring string) ([][]byte, error) {
 	return idx.Client.REST.searchIndex(idx.Name, querystring)
 }
 
@@ -56,13 +58,13 @@ func (idx *Index) Drop() error {
 }
 
 //
-func (t *Type) SearchSQL(sql string) ([]*Document, error) {
+func (t *Type) SearchSQL(sql string) ([][]byte, error) {
 	return t.Index.Client.REST.searchSQL(t.Index.Name, t.Name, sql)
 }
 
 // Perform a basic elasticsearch on a given index-type that will return
 // exact string matches on the passed querystring.
-func (t *Type) Search(querystring string) ([]*Document, error) {
+func (t *Type) Search(querystring string) ([][]byte, error) {
 	return t.Index.Client.REST.searchType(t.Index.Name, t.Name, querystring)
 }
 
@@ -79,15 +81,14 @@ func (t *Type) BulkInsert(docs [][]byte) ([]string, error) {
 
 // Find multiple documents in a given type namespace that match
 // key:value pairs in the passed queryString.
-func (t *Type) Find(querystring string) ([]*Document, error) {
+func (t *Type) Find(querystring string) ([][]byte, error) {
 	return t.Index.Client.REST.searchType(t.Index.Name, t.Name, querystring)
 }
 
 // Return a single document by its ID. If the document is not found
 // it will return an error.
-func (t *Type) FindById(ID string) (*Document, error) {
+func (t *Type) FindById(ID string) ([]byte, error) {
 	return t.Index.Client.REST.getDocument(t.Index.Name, t.Name, ID)
-
 }
 
 // Update a document by its ID. If it is not found it will return an error.
@@ -98,7 +99,7 @@ func (t *Type) UpdateById(ID string, doc []byte) error {
 
 // Insert multiple documents into a given type namespace, not all updates may be completed
 // an error will be returned if any of the operations fail
-func (t *Type) BulkUpdate(docs []*Document) ([]string, error) {
+func (t *Type) BulkUpdate(docs []*mock.GenericDocument) ([]string, error) {
 	return t.Index.Client.REST.bulkUpdateDocuments(t.Index.Name, t.Name, docs)
 }
 

@@ -12,7 +12,8 @@ import (
 	"testing"
 )
 
-type Example struct {
+type example struct {
+	ID string `json:"_id,omitempty"`
 	Message string `json:"message"`
 }
 
@@ -26,7 +27,7 @@ const (
 )
 
 var (
-	sampleDocument = &Example{testMessage}
+	sampleDocument = &example{Message: testMessage}
 )
 
 func setupMockServer() {
@@ -66,7 +67,7 @@ func TestClient(t *testing.T) {
 	mockClient, err := getClient("http://127.0.0.1:9201")
 	require.Nil(t, err)
 
-	clients := []*elasticsearch.Client{client, mockClient}
+	clients := []*elasticsearch.Client{client,mockClient}
 
 	for _, client := range clients {
 		t.Run("Insert Document", func(t *testing.T) {
@@ -135,9 +136,12 @@ func TestClient(t *testing.T) {
 				assert.NotEqual(t, "", ID)
 
 				// find that document by ID
+				ex := &example{}
 				result, err := collection.FindById(ID)
 				require.Nil(t, err)
-				assert.Equal(t, ID, result.ID)
+				err = json.Unmarshal(result, ex)
+				require.Nil(t, err)
+				assert.Equal(t, ID, ex.ID)
 				clean(client)
 			})
 		})
@@ -153,7 +157,7 @@ func TestClient(t *testing.T) {
 				assert.NotEqual(t, "", ID)
 
 				// update the document
-				update, err := json.Marshal(&Example{Message: testMessageChange})
+				update, err := json.Marshal(&example{Message: testMessageChange})
 				require.Nil(t, err)
 				err = collection.UpdateById(ID, update)
 				require.Nil(t, err)
@@ -162,9 +166,10 @@ func TestClient(t *testing.T) {
 				require.Nil(t, err)
 
 				// verify the document
-				finalDoc := &Example{}
-				err = json.Unmarshal(result.Body, finalDoc)
+				finalDoc := &example{}
+				err = json.Unmarshal(result, finalDoc)
 				require.Nil(t, err)
+
 				assert.Equal(t, testMessageChange, finalDoc.Message)
 				clean(client)
 			})
@@ -193,12 +198,12 @@ func TestClient(t *testing.T) {
 				}
 
 				// update base documents with different field
-				updates := make([]*elasticsearch.Document, bulkOperations)
-				updatedBody, err := json.Marshal(&Example{testMessageChange})
+				updates := make([]*mock.GenericDocument, bulkOperations)
+				updatedBody, err := json.Marshal(&example{Message: testMessageChange})
 				require.Nil(t, err)
 
 				for i := 0; i < len(IDs); i++ {
-					update := &elasticsearch.Document{ID: IDs[i], Body: make([]byte, len(updatedBody))}
+					update := &mock.GenericDocument{ID: IDs[i], Body: make([]byte, len(updatedBody))}
 					copy(update.Body, updatedBody)
 					updates[i] = update
 				}
@@ -277,7 +282,10 @@ func TestClient(t *testing.T) {
 
 			for _, finalDoc := range finalDocs {
 				for _, id := range deleted {
-					require.NotEqual(t, finalDoc.ID, id)
+					doc := &mock.GenericDocument{}
+					err := json.Unmarshal(finalDoc, doc)
+					require.Nil(t, err)
+					require.NotEqual(t, doc.ID, id)
 				}
 			}
 
@@ -351,7 +359,7 @@ func TestClient(t *testing.T) {
 				collection := client.I(testIndex).T(testType)
 
 				// insert 13 identical documents
-				example := &Example{Message: "eureka"}
+				example := &example{Message: "eureka"}
 				body, err := json.Marshal(example)
 				require.Nil(t, err)
 
