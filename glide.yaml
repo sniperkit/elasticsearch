@@ -12,3 +12,4 @@ import:
 - package: github.com/b3ntly/uritemplates
 - package: github.com/cch123/elasticsql
 - package: github.com/xwb1989/sqlparser
+- package: github.com/b3ntly/insertjson

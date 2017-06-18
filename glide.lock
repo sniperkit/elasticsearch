@@ -1,6 +1,8 @@
-hash: 5a239685bbbb189e1d04232d0bb5bf8fa546e64f06004444b51bd0fc49b6ab53
-updated: 2017-06-16T11:02:53.613562198-07:00
+hash: ab28b1d1fbe497dad82388baf8b014e91c9b642703dbcb54d7e20795050fddfa
+updated: 2017-06-17T22:08:15.589230737-07:00
 imports:
+- name: github.com/b3ntly/insertjson
+  version: 6efe111890b940693f2b68c9e31b7c39babe8aad
 - name: github.com/b3ntly/uritemplates
   version: 5743ad79e5a6920765a8b83e2d09ec812438843f
 - name: github.com/cch123/elasticsql

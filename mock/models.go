@@ -75,6 +75,11 @@ type (
 		Body map[string]json.RawMessage
 	}
 
+	GenericDocument struct {
+		ID string `json:"_id,omitempty"`
+		Body []byte
+	}
+
 	SearchResult struct {
 		Total    int          `json:"total"`
 		MaxScore float64      `json:"max_score"`
